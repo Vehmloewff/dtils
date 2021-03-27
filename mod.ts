@@ -1,5 +1,5 @@
 export * from './lib/date.ts'
-export * from './lib/extra.ts'
+export * from './lib/json.ts'
 export * from './lib/fs.ts'
 export * from './lib/logger.ts'
 export * from './lib/loop.ts'
