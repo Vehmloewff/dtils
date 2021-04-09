@@ -1,4 +1,4 @@
-import { sh, shCapture, writeText } from '../mod.ts'
+import { sh, shCapture, writeText, validateJson } from '../mod.ts'
 
 const { output } = await shCapture('deno bundle --unstable test/main.ts')
 
@@ -14,3 +14,5 @@ echo "Oh man, that's nice!"
 curl https://example.com -o test/fixture/example.com.html
 
 `)
+
+console.log(validateJson({ type: 'null' }, null))

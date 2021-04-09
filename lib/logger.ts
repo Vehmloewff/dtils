@@ -1,27 +1,115 @@
-import { chooseRandArrItem } from './random.ts'
+import { chooseArrItemFromString } from './random.ts'
 import { readText, writeText } from './fs.ts'
-import { blue, cyan, green, magenta, red, yellow, bold, stripColor, gray } from 'https://deno.land/std@0.85.0/fmt/colors.ts'
+import { bold, stripColor, gray } from 'https://deno.land/std@0.85.0/fmt/colors.ts'
 import { formatDate, monthsAbbr } from './date.ts'
 import { join } from 'https://deno.land/std@0.85.0/path/mod.ts'
+import { arraysMatch } from './array.ts'
 
 const debugStrategy = Deno.env.get('DEBUG')
 const debugOutput = Deno.env.get('DEBUG_OUTPUT')
 
-const chooseRandomColor = () => {
-	return chooseRandArrItem([blue, cyan, green, magenta, red, yellow])
+const colors = [
+	20,
+	21,
+	26,
+	27,
+	32,
+	33,
+	38,
+	39,
+	40,
+	41,
+	42,
+	43,
+	44,
+	45,
+	56,
+	57,
+	62,
+	63,
+	68,
+	69,
+	74,
+	75,
+	76,
+	77,
+	78,
+	79,
+	80,
+	81,
+	92,
+	93,
+	98,
+	99,
+	112,
+	113,
+	128,
+	129,
+	134,
+	135,
+	148,
+	149,
+	160,
+	161,
+	162,
+	163,
+	164,
+	165,
+	166,
+	167,
+	168,
+	169,
+	170,
+	171,
+	172,
+	173,
+	178,
+	179,
+	184,
+	185,
+	196,
+	197,
+	198,
+	199,
+	200,
+	201,
+	202,
+	203,
+	204,
+	205,
+	206,
+	207,
+	208,
+	209,
+	214,
+	215,
+	220,
+	221,
+]
+
+const chooseRandomColor = (str: string) => {
+	const color = chooseArrItemFromString(str, colors)
+
+	return () => {
+		const colorCode = '\u001B[3' + (color < 8 ? color : '8;5;' + color)
+
+		return `${colorCode};1m${str}\u001B[0m`
+	}
 }
 
 let lastTime = Date.now()
-let scopes: Map<string, (v: string) => string> = new Map()
+let scopes: Map<string, () => string> = new Map()
 
 export function debug(scope: string) {
-	if (!scopes.has(scope)) scopes.set(scope, chooseRandomColor())
+	if (!scopes.has(scope)) scopes.set(scope, chooseRandomColor(scope))
 
 	const colorFunc = scopes.get(scope)
 	if (!colorFunc) throw new Error(`something is really wrong`)
 
 	return (...args: any[]) => {
 		if (!debugStrategy) return
+
+		if (!scopeMatchesStrategy(scope, debugStrategy)) return
 
 		const strung =
 			args
@@ -35,7 +123,7 @@ export function debug(scope: string) {
 			writeLog(`${formatDate(new Date(), 'hh:MM:ss:l T')} ${scope} ${stripColor(strung)}`)
 		} else {
 			const now = Date.now()
-			Deno.stdout.writeSync(new TextEncoder().encode(`${colorFunc(bold(scope))} ${strung} ${gray(`+${now - lastTime}ms`)}`))
+			Deno.stdout.writeSync(new TextEncoder().encode(`${bold(colorFunc())} ${strung.trim()} ${gray(`+${now - lastTime}ms`)}\n`))
 			lastTime = now
 		}
 	}
@@ -74,5 +162,28 @@ async function writeLogs(logs: string[]) {
 	const path = join(debugOutput, filename)
 
 	const oldLines = await readText(path)
-	await writeText(path, oldLines + logs)
+	await writeText(path, oldLines + logs.join(''))
+}
+
+function scopeMatchesStrategy(scope: string, strategy: string) {
+	const scopeSections = scope.split(':').map(t => t.trim())
+	const strategySections = strategy.split(':').map(t => t.trim())
+
+	const isWild = strategySections[strategySections.length - 1] === '*'
+	if (isWild) strategySections.pop()
+
+	// no match if there is less scope than strategy. ex: scope(a:b), strategy(a:b:c)
+	if (scopeSections.length < strategySections.length) return false
+	if (scopeSections.length > strategySections.length) {
+		// no match if there is more scope than strategy and not wild.
+		// no match ex: scope(a:b) strategy(a)
+		// match ex: scope(a:*), strategy(a:b)
+		if (!isWild) return false
+	}
+
+	// either scope and strategy are the same,
+	// or there is more scope than strategy but strategy is wild at the end
+	const scopeSectionsToStrategyLength = scopeSections.slice(0, strategySections.length)
+
+	return arraysMatch(scopeSectionsToStrategyLength, strategySections)
 }

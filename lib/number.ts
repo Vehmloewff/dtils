@@ -18,3 +18,18 @@ export function multiplyString(string: string, number: number): string {
 
 	return str
 }
+
+export function wrap(num: number, min: number, max: number) {
+	if (min < 0) throw new Error('max must be greater than 0')
+	if (min >= max) throw new Error('max must be greater than min')
+
+	while (num < min || num > max) {
+		if (num > max) num = num - max
+		if (num < min) num = num + max
+	}
+
+	return num
+}
+
+10
+0 - 1
