@@ -44,6 +44,10 @@ export interface ObjectDescriptor {
 	valueType?: JsonDescriptor
 }
 
+export interface AnyDescriptor {
+	type: 'any'
+}
+
 export interface TypeChoiceDescriptor {
 	type: 'choice'
 	options: JsonDescriptor[]
@@ -56,6 +60,7 @@ export type JsonDescriptor =
 	| BooleanDescriptor
 	| ArrayDescriptor
 	| ObjectDescriptor
+	| AnyDescriptor
 	| TypeChoiceDescriptor
 
 export interface ValidatorError {
@@ -98,6 +103,7 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		else if (descriptor.type === 'boolean') validator = (value, path) => validateBoolean(value, descriptor, path)
 		else if (descriptor.type === 'array') validator = (value, path) => validateArray(value, descriptor, path)
 		else if (descriptor.type === 'object') validator = (value, path) => validateObject(value, descriptor, path)
+		else if (descriptor.type === 'any') validator = (value, path) => validateAny(value, descriptor, path)
 		else validator = (value, path) => validateChoice(value, descriptor, path)
 
 		return validator
@@ -220,6 +226,10 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 			if (Object.keys(value).length) return notOk([{ message: `Expected object to be empty`, path }])
 			return ok()
 		}
+	}
+
+	function validateAny(value: InnerJson, descriptor: AnyDescriptor, path: string): ValidatorResult {
+		return ok()
 	}
 
 	function validateChoice(value: InnerJson, descriptor: TypeChoiceDescriptor, path: string): ValidatorResult {
