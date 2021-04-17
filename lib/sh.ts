@@ -22,10 +22,22 @@ export interface ShOptions {
  * @param command Shell code to be executed
  */
 export async function sh(command: string, options: ShOptions = {}): Promise<number> {
-	const { code } = await Deno.run({
+	const process = Deno.run({
+		env: Deno.env.toObject(),
 		...options,
 		cmd: await getCommandArgs(command),
-	}).status()
+	})
+
+	let didFinish = false
+
+	window.addEventListener('unload', () => {
+		if (didFinish) return
+		process.kill(Deno.Signal.SIGINT)
+	})
+
+	const { code } = await process.status()
+
+	didFinish = true
 
 	return code
 }
@@ -42,6 +54,7 @@ export interface ShCaptureResult {
  */
 export async function shCapture(command: string, options: ShOptions = {}): Promise<ShCaptureResult> {
 	const process = Deno.run({
+		env: Deno.env.toObject(),
 		...options,
 		cmd: await getCommandArgs(command),
 		stderr: 'piped',
@@ -49,7 +62,16 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 		stdin: 'piped',
 	})
 
+	let didFinish = false
+
+	window.addEventListener('unload', () => {
+		if (didFinish) return
+		process.kill(Deno.Signal.SIGINT)
+	})
+
 	const [{ code }, errorRaw, outputRaw] = await Promise.all([process.status(), process.stderrOutput(), process.output()])
+
+	didFinish = true
 
 	let error = ``
 	let output = ``
