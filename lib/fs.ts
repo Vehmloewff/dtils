@@ -19,9 +19,13 @@ export async function writeText(file: string, text: string) {
 	await Deno.writeTextFile(file, text)
 }
 
-export async function writeJson(file: string, json: Json) {
+export interface WriteJsonOptions {
+	separator?: string
+}
+
+export async function writeJson(file: string, json: Json, options: WriteJsonOptions = {}) {
 	await ensureDirExists(file)
-	await Deno.writeTextFile(file, JSON.stringify(json))
+	await Deno.writeTextFile(file, JSON.stringify(json, null, options.separator))
 }
 
 export async function readBinary(file: string): Promise<Uint8Array> {
