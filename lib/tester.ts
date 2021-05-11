@@ -13,7 +13,7 @@ export interface Expect {
 
 type It = (description: string, cb: (expect: Expect) => void | Promise<void>) => Promise<void>
 
-export async function describe(module: string, cb: (it: It) => Promise<void>) {
+export function describe(module: string, cb: (it: It) => Promise<void> | void) {
 	const func = async () => {
 		console.log(cyan(bold(module)))
 
@@ -34,8 +34,6 @@ export async function describe(module: string, cb: (it: It) => Promise<void>) {
 
 		await cb(it)
 	}
-
-	if (Deno.env.get('ENV') === 'test') await func()
 
 	return func
 }
