@@ -1,5 +1,6 @@
 export * from './lib/array.ts'
 export * from './lib/date.ts'
+export * from './lib/errors.ts'
 export * from './lib/json.ts'
 export * from './lib/fs.ts'
 export * from './lib/logger.ts'
