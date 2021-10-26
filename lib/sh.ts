@@ -32,7 +32,7 @@ export async function sh(command: string, options: ShOptions = {}): Promise<numb
 
 	window.addEventListener('unload', () => {
 		if (didFinish) return
-		process.kill(Deno.Signal.SIGINT)
+		process.kill('SIGINT')
 	})
 
 	const { code } = await process.status()
@@ -66,7 +66,7 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 
 	window.addEventListener('unload', () => {
 		if (didFinish) return
-		process.kill(Deno.Signal.SIGINT)
+		process.kill('SIGINT')
 	})
 
 	const [{ code }, errorRaw, outputRaw] = await Promise.all([process.status(), process.stderrOutput(), process.output()])
