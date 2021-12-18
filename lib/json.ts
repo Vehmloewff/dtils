@@ -1,5 +1,4 @@
-export type InnerJson = number | string | boolean | null | Json
-export type Json = { [key: string]: InnerJson } | InnerJson[]
+export type Json = any
 
 export interface StringDescriptor {
 	type: 'string'
@@ -78,7 +77,7 @@ export interface ValidatorResultNotOk {
 
 export type ValidatorResult = ValidatorResultOk | ValidatorResultNotOk
 
-export function validateJson(descriptor: JsonDescriptor, json: InnerJson): ValidatorResult {
+export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorResult {
 	interface ValidatorResultOk {
 		ok: true
 	}
@@ -95,7 +94,7 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 	const getIdKeyFormat = (path: string, key: string) => path + (/[a-zA-Z_$][a-zA-Z0-9_$]*/.test(key) ? `.${key}` : `['${key}']`)
 
 	function getCorrectValidator(descriptor: JsonDescriptor) {
-		let validator: null | ((value: InnerJson, path: string) => ValidatorResult) = null
+		let validator: null | ((value: Json, path: string) => ValidatorResult) = null
 
 		if (descriptor.type === 'null') validator = (value, path) => validateNull(value, descriptor, path)
 		else if (descriptor.type === 'string') validator = (value, path) => validateString(value, descriptor, path)
@@ -109,12 +108,12 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		return validator
 	}
 
-	function validateNull(value: InnerJson, descriptor: NullDescriptor, path: string): ValidatorResult {
+	function validateNull(value: Json, descriptor: NullDescriptor, path: string): ValidatorResult {
 		if (value === null || value === undefined) return ok()
 		return notOk([{ message: `Expected null, but got: ${value}`, path }])
 	}
 
-	function validateString(value: InnerJson, descriptor: StringDescriptor, path: string): ValidatorResult {
+	function validateString(value: Json, descriptor: StringDescriptor, path: string): ValidatorResult {
 		if (typeof value !== 'string') return notOk([{ message: `Expected a string, but got: '${value}'`, path }])
 
 		if (!descriptor.values) return ok()
@@ -132,7 +131,7 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		return ok()
 	}
 
-	function validateNumber(value: InnerJson, descriptor: NumberDescriptor, path: string): ValidatorResult {
+	function validateNumber(value: Json, descriptor: NumberDescriptor, path: string): ValidatorResult {
 		if (typeof value !== 'number') return notOk([{ message: `Expected a number, but got: '${value}'`, path }])
 
 		if (isNaN(value)) {
@@ -151,12 +150,12 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		return ok()
 	}
 
-	function validateBoolean(value: InnerJson, descriptor: BooleanDescriptor, path: string): ValidatorResult {
+	function validateBoolean(value: Json, descriptor: BooleanDescriptor, path: string): ValidatorResult {
 		if (typeof value !== 'boolean') return notOk([{ message: `Expected a boolean, but got: ${value}`, path }])
 		return ok()
 	}
 
-	function validateArray(value: InnerJson, descriptor: ArrayDescriptor, path: string): ValidatorResult {
+	function validateArray(value: Json, descriptor: ArrayDescriptor, path: string): ValidatorResult {
 		if (!Array.isArray(value)) return notOk([{ message: `Expected an array, but got: ${value}`, path }])
 
 		if (descriptor.minLength !== undefined && value.length < descriptor.minLength)
@@ -176,7 +175,7 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		return ok()
 	}
 
-	function validateObject(value: InnerJson, descriptor: ObjectDescriptor, path: string): ValidatorResult {
+	function validateObject(value: Json, descriptor: ObjectDescriptor, path: string): ValidatorResult {
 		if (typeof value !== 'object' || Array.isArray(value) || value === null || typeof value === 'undefined')
 			return notOk([{ message: `Expected an object, but found: ${value}`, path }])
 
@@ -228,11 +227,11 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 		}
 	}
 
-	function validateAny(value: InnerJson, descriptor: AnyDescriptor, path: string): ValidatorResult {
+	function validateAny(value: Json, descriptor: AnyDescriptor, path: string): ValidatorResult {
 		return ok()
 	}
 
-	function validateChoice(value: InnerJson, descriptor: TypeChoiceDescriptor, path: string): ValidatorResult {
+	function validateChoice(value: Json, descriptor: TypeChoiceDescriptor, path: string): ValidatorResult {
 		if (!descriptor.options.length) return ok()
 
 		const errors: ValidatorError[] = []
@@ -264,7 +263,7 @@ export function validateJson(descriptor: JsonDescriptor, json: InnerJson): Valid
 }
 
 // deno-lint-ignore ban-types
-export function jsonParse(string: string, fallback: {} | [] | null = null): InnerJson {
+export function jsonParse(string: string, fallback: {} | [] | null = null): Json {
 	if (!string.length) return string
 	if (string.startsWith('"') && string.endsWith('"')) return string.slice(1, -1)
 	if (string === 'true') return true
