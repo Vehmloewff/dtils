@@ -1,5 +1,5 @@
-import { dirname } from 'https://deno.land/std@0.95.0/path/mod.ts'
-import { exists } from 'https://deno.land/std@0.95.0/fs/mod.ts'
+import { dirname } from 'https://deno.land/std@0.118.0/path/mod.ts'
+import { exists } from 'https://deno.land/std@0.118.0/fs/mod.ts'
 import { Json } from './json.ts'
 
 export { exists }

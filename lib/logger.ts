@@ -1,8 +1,8 @@
 import { chooseArrItemFromString } from './random.ts'
 import { readText, writeText } from './fs.ts'
-import { bold, stripColor, gray } from 'https://deno.land/std@0.95.0/fmt/colors.ts'
+import { bold, stripColor, gray } from 'https://deno.land/std@0.118.0/fmt/colors.ts'
 import { formatDate, monthsAbbr } from './date.ts'
-import { join } from 'https://deno.land/std@0.95.0/path/mod.ts'
+import { join } from 'https://deno.land/std@0.118.0/path/mod.ts'
 import { arraysMatch } from './array.ts'
 
 const debugStrategy = Deno.env.get('DEBUG')

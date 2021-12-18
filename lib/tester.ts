@@ -1,6 +1,6 @@
-import { assertEquals, AssertionError } from 'https://deno.land/std@0.95.0/testing/asserts.ts'
+import { assertEquals, AssertionError } from 'https://deno.land/std@0.118.0/testing/asserts.ts'
 import { cyan, gray, green, red } from 'https://deno.land/std@0.55.0/fmt/colors.ts'
-import { bold } from 'https://deno.land/std@0.95.0/fmt/colors.ts'
+import { bold } from 'https://deno.land/std@0.118.0/fmt/colors.ts'
 
 let failed = 0
 let passed = 0
