@@ -1,8 +1,14 @@
 import { dirname } from 'https://deno.land/std@0.118.0/path/mod.ts'
-import { exists } from 'https://deno.land/std@0.118.0/fs/mod.ts'
 import { Json } from './json.ts'
 
-export { exists }
+export async function exists(file: string) {
+	try {
+		await Deno.stat(file)
+		return true
+	} catch (_) {
+		return false
+	}
+}
 
 const ensureDirExists = async (file: string) => {
 	const dir = dirname(file)
