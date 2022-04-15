@@ -1,6 +1,7 @@
 import * as io from 'https://deno.land/std@0.118.0/io/mod.ts'
 import * as streams from 'https://deno.land/std@0.118.0/streams/mod.ts'
 
+/** @deprecated Request has builtin support for this */
 export async function readBody(request: Request) {
 	if (!request.body) throw new Error('no request body')
 
@@ -13,6 +14,7 @@ export async function readBody(request: Request) {
 	return bodyLines.join('\n')
 }
 
+/** @deprecated Request has builtin support for this */
 export async function readJsonBody(request: Request) {
 	return JSON.parse(await readBody(request))
 }
