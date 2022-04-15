@@ -1,18 +1,8 @@
-import { sh, shCapture, writeText, validateJson } from '../mod.ts'
+import { summarize, exitWithProperCode } from '../lib/tester.ts'
 
-const { output } = await shCapture('deno bundle --unstable test/main.ts')
+import stringTest from './string.ts'
 
-await writeText('test/fixture/bundled.js', output)
+await stringTest()
 
-sh(`
-
-echo "
-// the sh function runs shell code" >> test/fixture/bundled.js
-
-echo "Oh man, that's nice!"
-
-curl https://example.com -o test/fixture/example.com.html
-
-`)
-
-console.log(validateJson({ type: 'null' }, null))
+summarize()
+exitWithProperCode()
