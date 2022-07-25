@@ -1,20 +1,11 @@
-import * as io from 'https://deno.land/std@0.118.0/io/mod.ts'
-import * as streams from 'https://deno.land/std@0.118.0/streams/mod.ts'
+// deno-lint-ignore no-explicit-any
+export function errorToResponse(error: any) {
+	if (error.code === 'authentication') return new Response(error.message, { status: 401 })
+	if (error.code === 'authorization') return new Response(error.message, { status: 403 })
+	if (error.code === 'bad-params') return new Response(error.message, { status: 400 })
+	if (error.code === 'not-found') return new Response(error.message, { status: 404 })
 
-/** @deprecated Request has builtin support for this */
-export async function readBody(request: Request) {
-	if (!request.body) throw new Error('no request body')
+	console.error(error)
 
-	const bodyLines: string[] = []
-
-	const reader = streams.readerFromStreamReader(request.body.getReader())
-
-	for await (const line of io.readLines(reader)) bodyLines.push(line)
-
-	return bodyLines.join('\n')
-}
-
-/** @deprecated Request has builtin support for this */
-export async function readJsonBody(request: Request) {
-	return JSON.parse(await readBody(request))
+	return new Response('Internal error has occurred', { status: 500 })
 }

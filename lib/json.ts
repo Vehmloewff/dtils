@@ -1,3 +1,4 @@
+// deno-lint-ignore no-explicit-any
 export type Json = any
 
 export interface StringDescriptor {
@@ -108,7 +109,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 		return validator
 	}
 
-	function validateNull(value: Json, descriptor: NullDescriptor, path: string): ValidatorResult {
+	function validateNull(value: Json, _descriptor: NullDescriptor, path: string): ValidatorResult {
 		if (value === null || value === undefined) return ok()
 		return notOk([{ message: `Expected null, but got: ${value}`, path }])
 	}
@@ -150,7 +151,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 		return ok()
 	}
 
-	function validateBoolean(value: Json, descriptor: BooleanDescriptor, path: string): ValidatorResult {
+	function validateBoolean(value: Json, _descriptor: BooleanDescriptor, path: string): ValidatorResult {
 		if (typeof value !== 'boolean') return notOk([{ message: `Expected a boolean, but got: ${value}`, path }])
 		return ok()
 	}
@@ -227,7 +228,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 		}
 	}
 
-	function validateAny(value: Json, descriptor: AnyDescriptor, path: string): ValidatorResult {
+	function validateAny(_value: Json, _descriptor: AnyDescriptor, _path: string): ValidatorResult {
 		return ok()
 	}
 

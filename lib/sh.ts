@@ -30,7 +30,7 @@ export async function sh(command: string, options: ShOptions = {}): Promise<numb
 
 	let didFinish = false
 
-	window.addEventListener('unload', () => {
+	globalThis.window.addEventListener('unload', () => {
 		if (didFinish) return
 		process.kill('SIGINT')
 	})
@@ -64,7 +64,7 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 
 	let didFinish = false
 
-	window.addEventListener('unload', () => {
+	globalThis.window.addEventListener('unload', () => {
 		if (didFinish) return
 		process.kill('SIGINT')
 	})

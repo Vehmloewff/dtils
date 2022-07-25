@@ -1,8 +1,7 @@
 import { chooseArrItemFromString } from './random.ts'
 import { readText, writeText } from './fs.ts'
-import { bold, stripColor, gray } from 'https://deno.land/std@0.118.0/fmt/colors.ts'
+import { colors as colorTools, pathUtils } from '../deps.ts'
 import { formatDate, monthsAbbr } from './date.ts'
-import { join } from 'https://deno.land/std@0.118.0/path/mod.ts'
 import { arraysMatch } from './array.ts'
 
 const debugStrategy = Deno.env.get('DEBUG')
@@ -25,7 +24,7 @@ const chooseRandomColor = (str: string) => {
 }
 
 let lastTime = Date.now()
-let scopes: Map<string, () => string> = new Map()
+const scopes: Map<string, () => string> = new Map()
 
 export function debug(scope: string) {
 	if (!scopes.has(scope)) scopes.set(scope, chooseRandomColor(scope))
@@ -33,6 +32,7 @@ export function debug(scope: string) {
 	const colorFunc = scopes.get(scope)
 	if (!colorFunc) throw new Error(`something is really wrong`)
 
+	// deno-lint-ignore no-explicit-any
 	return (...args: any[]) => {
 		if (!debugStrategy) return
 
@@ -47,10 +47,12 @@ export function debug(scope: string) {
 				.join(' ') + '\n'
 
 		if (debugOutput) {
-			writeLog(`${formatDate(new Date(), 'hh:MM:ss:l T')} ${scope} ${stripColor(strung)}`)
+			writeLog(`${formatDate(new Date(), 'hh:MM:ss:l T')} ${scope} ${colorTools.stripColor(strung)}`)
 		} else {
 			const now = Date.now()
-			Deno.stdout.writeSync(new TextEncoder().encode(`${bold(colorFunc())} ${strung.trim()} ${gray(`+${now - lastTime}ms`)}\n`))
+			Deno.stdout.writeSync(
+				new TextEncoder().encode(`${colorTools.bold(colorFunc())} ${strung.trim()} ${colorTools.gray(`+${now - lastTime}ms`)}\n`)
+			)
 			lastTime = now
 		}
 	}
@@ -58,7 +60,7 @@ export function debug(scope: string) {
 
 let writeScheduled = false
 let leftoverPromise: null | Promise<null> = null
-let nextLogs: string[] = []
+const nextLogs: string[] = []
 
 function writeLog(log: string) {
 	nextLogs.push(log)
@@ -86,7 +88,7 @@ async function writeLogs(logs: string[]) {
 
 	const date = new Date()
 	const filename = `${monthsAbbr[date.getUTCMonth()]}-${date.getUTCDate()}-${date.getUTCFullYear()}-UTC.log`
-	const path = join(debugOutput, filename)
+	const path = pathUtils.join(debugOutput, filename)
 
 	const oldLines = await readText(path)
 	await writeText(path, oldLines + logs.join(''))

@@ -1,6 +1,4 @@
-import { assertEquals, AssertionError } from 'https://deno.land/std@0.118.0/testing/asserts.ts'
-import { cyan, gray, green, red } from 'https://deno.land/std@0.55.0/fmt/colors.ts'
-import { bold } from 'https://deno.land/std@0.118.0/fmt/colors.ts'
+import { asserts, colors } from '../deps.ts'
 
 let failed = 0
 let passed = 0
@@ -15,7 +13,7 @@ type It = (description: string, cb: (expect: Expect) => void | Promise<void>) =>
 
 export function describe(module: string, cb: (it: It) => Promise<void> | void) {
 	const func = async () => {
-		console.log(cyan(bold(module)))
+		console.log(colors.cyan(colors.bold(module)))
 
 		const it: It = async (description, cb) => {
 			const expect = createExpect()
@@ -23,10 +21,10 @@ export function describe(module: string, cb: (it: It) => Promise<void> | void) {
 
 			try {
 				await cb(expect)
-				console.log(`${description} ... ${green('ok')} ${gray(`(${Date.now() - startTime}ms)`)}`)
+				console.log(`${description} ... ${colors.green('ok')} ${colors.gray(`(${Date.now() - startTime}ms)`)}`)
 				passed++
 			} catch (e) {
-				console.log(`${description} ... ${red('failed')} ${gray(`(${Date.now() - startTime}ms)`)}`)
+				console.log(`${description} ... ${colors.red('failed')} ${colors.gray(`(${Date.now() - startTime}ms)`)}`)
 				console.log(e)
 				failed++
 			}
@@ -42,9 +40,9 @@ export function summarize() {
 	console.log('')
 
 	if (failed) {
-		console.log(`test result: ${bold(red('failed'))}.  ${passed} passed; ${failed} failed;`)
+		console.log(`test result: ${colors.bold(colors.red('failed'))}.  ${passed} passed; ${failed} failed;`)
 	} else {
-		console.log(`test result: ${green('ok')}.  ${passed} passed; ${failed} failed;`)
+		console.log(`test result: ${colors.green('ok')}.  ${passed} passed; ${failed} failed;`)
 	}
 }
 
@@ -58,23 +56,23 @@ export function exitWithProperCode() {
 
 function createExpect(): Expect {
 	function failure(reason: string) {
-		throw new AssertionError(reason)
+		throw new asserts.AssertionError(reason)
 	}
 
 	function equal(v1: unknown, v2: unknown) {
-		assertEquals(v1, v2)
+		asserts.assertEquals(v1, v2)
 	}
 
 	async function error(errorProne: () => unknown, type?: unknown) {
 		try {
 			await errorProne()
 
-			throw new AssertionError('Function did not error!')
+			throw new asserts.AssertionError('Function did not error!')
 		} catch (e) {
-			if (e instanceof AssertionError) throw e
+			if (e instanceof asserts.AssertionError) throw e
 
 			if (type)
-				assertEquals(
+				asserts.assertEquals(
 					e,
 					type,
 					`Actual error did not match the expected one\n\nActual:\n${JSON.stringify(e)}\n\nExpected:\n${JSON.stringify(type)}`

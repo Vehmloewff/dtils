@@ -3,7 +3,7 @@ export function arraysMatch<T>(a1: T[], a2: T[]): boolean {
 
 	let foundNoMatch = false
 
-	for (let index in a1) {
+	for (const index in a1) {
 		const v1 = a1[index]
 		const v2 = a2[index]
 

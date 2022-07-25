@@ -1,4 +1,4 @@
-import { dirname } from 'https://deno.land/std@0.118.0/path/mod.ts'
+import { pathUtils } from '../deps.ts'
 import { Json } from './json.ts'
 
 export async function exists(file: string) {
@@ -11,7 +11,7 @@ export async function exists(file: string) {
 }
 
 const ensureDirExists = async (file: string) => {
-	const dir = dirname(file)
+	const dir = pathUtils.dirname(file)
 	if (!(await exists(dir))) await Deno.mkdir(dir, { recursive: true })
 }
 
@@ -37,7 +37,7 @@ export async function writeJson(file: string, json: Json, options: WriteJsonOpti
 export async function readBinary(file: string): Promise<Uint8Array> {
 	try {
 		return await Deno.readFile(file)
-	} catch (e) {
+	} catch (_) {
 		return new Uint8Array()
 	}
 }
@@ -45,7 +45,7 @@ export async function readBinary(file: string): Promise<Uint8Array> {
 export async function readText(file: string): Promise<string> {
 	try {
 		return await Deno.readTextFile(file)
-	} catch (e) {
+	} catch (_) {
 		return ``
 	}
 }
@@ -53,7 +53,7 @@ export async function readText(file: string): Promise<string> {
 export async function readJson(file: string): Promise<Json> {
 	try {
 		return JSON.parse(await Deno.readTextFile(file))
-	} catch (e) {
+	} catch (_) {
 		return {}
 	}
 }
@@ -63,13 +63,13 @@ export async function readJsonStrict(file: string): Promise<Json> {
 
 	try {
 		json = await Deno.readTextFile(file)
-	} catch (e) {
+	} catch (_) {
 		return {}
 	}
 
 	try {
 		return JSON.parse(json)
-	} catch (e) {
-		throw 'Failed to parse "${file}":' + e
+	} catch (error) {
+		throw 'Failed to parse "${file}":' + error
 	}
 }

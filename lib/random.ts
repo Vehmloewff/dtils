@@ -1,5 +1,3 @@
-import { wrap } from './number.ts'
-
 /**
  * Chooses a random item from the array and returns it
  */
