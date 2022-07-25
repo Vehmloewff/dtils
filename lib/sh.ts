@@ -60,7 +60,7 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 		cmd: await getCommandArgs(command),
 		stderr: 'piped',
 		stdout: 'piped',
-		stdin: 'piped',
+		stdin: 'inherit',
 	})
 
 	let didFinish = false
