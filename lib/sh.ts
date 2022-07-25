@@ -89,3 +89,27 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 		output,
 	}
 }
+
+export interface ShIgnoreOptions extends ShOptions {
+	alwaysIgnoreStderr?: boolean
+}
+
+/**
+ * Executes shell code and ignores the output, except when the program is unsuccessful.
+ * In that case, the stderr is printed.
+ * @param command Shell code to be executed
+ */
+export async function shIgnore(command: string, options: ShIgnoreOptions = {}) {
+	const { code, error } = await shCapture(command, options)
+
+	if (code) {
+		if (error.trim()) {
+			console.error(`Command ${command} exited with a code of ${code}:`)
+			console.error(error)
+		} else {
+			console.error(`Command ${command} exited with a code of ${code} but didn't write anything to it's stderr`)
+		}
+	}
+
+	return { code }
+}
