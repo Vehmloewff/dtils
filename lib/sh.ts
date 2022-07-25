@@ -37,6 +37,7 @@ export async function sh(command: string, options: ShOptions = {}): Promise<numb
 
 	const { code } = await process.status()
 
+	process.close()
 	didFinish = true
 
 	return code
@@ -71,6 +72,7 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 
 	const [{ code }, errorRaw, outputRaw] = await Promise.all([process.status(), process.stderrOutput(), process.output()])
 
+	process.close()
 	didFinish = true
 
 	let error = ``
