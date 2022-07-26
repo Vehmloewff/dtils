@@ -104,10 +104,10 @@ export async function shIgnore(command: string, options: ShIgnoreOptions = {}) {
 
 	if (code) {
 		if (error.trim()) {
-			console.error(`Command ${command} exited with a code of ${code}:`)
+			console.error(`Command "${command}" exited with a code of ${code}:`)
 			console.error(error)
 		} else {
-			console.error(`Command ${command} exited with a code of ${code} but didn't write anything to it's stderr`)
+			console.error(`Command "${command}" exited with a code of ${code} but didn't write anything to it's stderr`)
 		}
 	}
 
