@@ -1,3 +1,4 @@
+/** Returns true if arrays are found to match in a shallow-equal test */
 export function arraysMatch<T>(a1: T[], a2: T[]): boolean {
 	if (a1.length !== a2.length) return false
 
@@ -14,4 +15,12 @@ export function arraysMatch<T>(a1: T[], a2: T[]): boolean {
 	}
 
 	return !foundNoMatch
+}
+
+/** Prepends new items onto items */
+export function prepend<T>(items: T[], newItems: T[]) {
+	if (!newItems.length) return
+
+	// loop through array backwards and unshift each element on
+	for (let index = newItems.length - 1; index >= 0; index--) items.unshift(newItems[index])
 }
