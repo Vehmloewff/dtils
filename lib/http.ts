@@ -1,9 +1,11 @@
+import { isBadParamsError, isForbiddenError, isNotAuthenticatedError, isNotFoundError } from './errors.ts'
+
 // deno-lint-ignore no-explicit-any
 export function errorToResponse(error: any) {
-	if (error.code === 'authentication') return new Response(error.message, { status: 401 })
-	if (error.code === 'authorization') return new Response(error.message, { status: 403 })
-	if (error.code === 'bad-params') return new Response(error.message, { status: 400 })
-	if (error.code === 'not-found') return new Response(error.message, { status: 404 })
+	if (isForbiddenError(error)) return new Response(error.message, { status: 403 })
+	if (isNotAuthenticatedError(error)) return new Response(error.message, { status: 401 })
+	if (isBadParamsError(error)) return new Response(error.message, { status: 400 })
+	if (isNotFoundError(error)) return new Response(error.message, { status: 404 })
 
 	console.error(error)
 
