@@ -4,8 +4,8 @@ import { colors as colorTools, pathUtils } from '../deps.ts'
 import { formatDate, monthsAbbr } from './date.ts'
 import { arraysMatch } from './array.ts'
 
-const debugStrategy = Deno.env.get('DEBUG')
-const debugOutput = Deno.env.get('DEBUG_OUTPUT')
+let stashedDebugStrategy: string | null = null
+let stashedDebugOutput: string | null = null
 
 const colors = [
 	20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68, 69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112,
@@ -23,10 +23,16 @@ const chooseRandomColor = (str: string) => {
 	}
 }
 
+const initDebugStashes = () => {
+	if (!stashedDebugStrategy) stashedDebugStrategy = Deno.env.get('DEBUG') || null
+	if (!stashedDebugOutput) stashedDebugOutput = Deno.env.get('DEBUG_OUTPUT') || null
+}
+
 let lastTime = Date.now()
 const scopes: Map<string, () => string> = new Map()
 
 export function debug(scope: string) {
+	initDebugStashes()
 	if (!scopes.has(scope)) scopes.set(scope, chooseRandomColor(scope))
 
 	const colorFunc = scopes.get(scope)
@@ -34,9 +40,9 @@ export function debug(scope: string) {
 
 	// deno-lint-ignore no-explicit-any
 	return (...args: any[]) => {
-		if (!debugStrategy) return
+		if (!stashedDebugStrategy) return
 
-		if (!scopeMatchesStrategy(scope, debugStrategy)) return
+		if (!scopeMatchesStrategy(scope, stashedDebugStrategy)) return
 
 		const strung =
 			args
@@ -46,7 +52,7 @@ export function debug(scope: string) {
 				})
 				.join(' ') + '\n'
 
-		if (debugOutput) {
+		if (stashedDebugOutput) {
 			writeLog(`${formatDate(new Date(), 'hh:MM:ss:l T')} ${scope} ${colorTools.stripColor(strung)}`)
 		} else {
 			const now = Date.now()
@@ -84,11 +90,11 @@ function scheduleWrite() {
 }
 
 async function writeLogs(logs: string[]) {
-	if (!debugOutput) throw new Error(`wat??  logical error in here!`)
+	if (!stashedDebugOutput) throw new Error(`wat??  logical error in here!`)
 
 	const date = new Date()
 	const filename = `${monthsAbbr[date.getUTCMonth()]}-${date.getUTCDate()}-${date.getUTCFullYear()}-UTC.log`
-	const path = pathUtils.join(debugOutput, filename)
+	const path = pathUtils.join(stashedDebugOutput, filename)
 
 	const oldLines = await readText(path)
 	await writeText(path, oldLines + logs.join(''))
