@@ -39,6 +39,8 @@ export async function sh(command: string, options: ShOptions = {}): Promise<numb
 	onMainProcessExit(() => {
 		if (didFinish) return
 		process.kill('SIGINT')
+
+		didFinish = true
 	})
 
 	const { code } = await process.status()
