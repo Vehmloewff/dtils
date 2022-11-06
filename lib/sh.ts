@@ -12,6 +12,12 @@ const getCommandArgs = async (command: string) => {
 	return [shellFile, '-c', command]
 }
 
+const onMainProcessExit = (fn: () => void) => {
+	globalThis.window.addEventListener('unload', () => fn())
+	globalThis.window.addEventListener('unhandledrejection', () => fn())
+	globalThis.window.addEventListener('error', () => fn())
+}
+
 export interface ShOptions {
 	cwd?: string
 	env?: Record<string, string>
@@ -30,7 +36,7 @@ export async function sh(command: string, options: ShOptions = {}): Promise<numb
 
 	let didFinish = false
 
-	globalThis.window.addEventListener('unload', () => {
+	onMainProcessExit(() => {
 		if (didFinish) return
 		process.kill('SIGINT')
 	})
@@ -65,7 +71,7 @@ export async function shCapture(command: string, options: ShOptions = {}): Promi
 
 	let didFinish = false
 
-	globalThis.window.addEventListener('unload', () => {
+	onMainProcessExit(() => {
 		if (didFinish) return
 		process.kill('SIGINT')
 	})
