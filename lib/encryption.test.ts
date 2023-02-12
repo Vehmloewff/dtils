@@ -78,9 +78,10 @@ Deno.test({
 	name: '[encryption] digital signatures should work',
 	async fn() {
 		const pair = await generateSigningKeyPair()
+		const dataToSign = stringToBinary('something that we want to make sure came from somebody')
 
-		const signature = await sign(pair)
-		const isValid = await verify(pair.publicKey, signature)
+		const signature = await sign(pair.privateKey, dataToSign)
+		const isValid = await verify(signature, pair.publicKey, dataToSign)
 
 		asserts.assertEquals(isValid, true)
 	},
