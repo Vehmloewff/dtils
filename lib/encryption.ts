@@ -89,7 +89,7 @@ const getAesAlgorithmData = (counter: Uint8Array): AesCtrParams => ({
 })
 
 const importAesKey = (keyData: ParsedSymmetricKey, usages: KeyUsage[]) => {
-	if (keyData.counterBytes.length !== 16) throw new Error("`key` is an invalid aes symmetric key.  It doesn't have the right counter")
+	if (keyData.counterBytes.length !== 16) throw new Error('`key` is an invalid aes symmetric key.  It doesn\'t have the right counter')
 
 	return crypto.subtle.importKey('raw', keyData.keyBytes, getAesAlgorithmData(keyData.counterBytes), false, usages)
 }
@@ -107,7 +107,7 @@ const importRsaKey = (keyData: ParsedAsymmetricKey, usages: KeyUsage[]) => {
 
 const getEcAlgorithmData = (): EcdsaParams & EcKeyGenParams => ({
 	name: 'ECDSA',
-	namedCurve: 'P-384',
+	namedCurve: 'P-256',
 	hash: 'SHA-256',
 })
 
@@ -181,8 +181,9 @@ export async function sign(privateKey: string, data: Uint8Array) {
 export async function verify(signature: string, publicKey: string, data: Uint8Array) {
 	const publicKeyData = parseKey(publicKey)
 
-	if (publicKeyData.algorithm !== 'ec')
+	if (publicKeyData.algorithm !== 'ec') {
 		throw new Error(`Public key is of algorithm ${publicKeyData.algorithm} and does not support verifying signatures`)
+	}
 	if (publicKeyData.isPrivate) throw new Error(`publicKey is a private key`)
 
 	const signatureBytes = base64.decode(signature)
@@ -213,10 +214,9 @@ export interface KeyPair {
 
 /** Generates an asymmetric key pair for signing or encryption purposes */
 export async function generateKeyPair(algorithm: 'rsa' | 'ec'): Promise<KeyPair> {
-	const usages: KeyUsage[] =
-		algorithm === 'rsa'
-			? ['encrypt', 'decrypt'] // So weird, but I have to set both usages in here.  Just 'encrypt' fails...
-			: ['sign']
+	const usages: KeyUsage[] = algorithm === 'rsa'
+		? ['encrypt', 'decrypt'] // So weird, but I have to set both usages in here.  Just 'encrypt' fails...
+		: ['sign']
 
 	const pair = await crypto.subtle.generateKey(algorithm === 'rsa' ? getRsaAlgorithmData() : getEcAlgorithmData(), true, usages)
 
@@ -256,7 +256,7 @@ export async function hashPassword(password: string, salt: string) {
 			iterations: 100000,
 		},
 		importedKey,
-		16 * 8
+		16 * 8,
 	)
 
 	const keyBytes = new Uint8Array(derivation)
