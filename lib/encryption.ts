@@ -136,6 +136,7 @@ export async function encrypt(key: string, plainBytes: Uint8Array) {
 	}
 
 	if (keyData.algorithm === 'rsa') {
+		if (keyData.isPrivate) throw new Error('Public keys encrypt and private keys only decrypt, but a private RSA key was passed to encrypt')
 		const cryptoKey = await importRsaKey(keyData, ['encrypt'])
 
 		const encryptedBuff = await crypto.subtle.encrypt(getRsaAlgorithmData(), cryptoKey, plainBytes)
@@ -157,6 +158,7 @@ export async function decrypt(key: string, encryptedBytes: Uint8Array) {
 	}
 
 	if (keyData.algorithm === 'rsa') {
+		if (!keyData.isPrivate) throw new Error('Public keys encrypt and private keys only decrypt, but a public RSA key was passed to decrypt')
 		const cryptoKey = await importRsaKey(keyData, ['decrypt'])
 
 		const plainBuff = await crypto.subtle.decrypt(getRsaAlgorithmData(), cryptoKey, encryptedBytes)
