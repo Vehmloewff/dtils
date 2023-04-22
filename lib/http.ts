@@ -1,8 +1,7 @@
 import { BadParamsError, isBadParamsError, isForbiddenError, isNotAuthenticatedError, isNotFoundError, isUserError } from './errors.ts'
-import { Json } from './json.ts'
+import { machineNameRegex } from './regex.ts'
 
-// deno-lint-ignore no-explicit-any
-export function errorToResponse(error: any) {
+export function errorToResponse(error: unknown) {
 	if (isForbiddenError(error)) return new Response(error.message, { status: 403 })
 	if (isNotAuthenticatedError(error)) return new Response(error.message, { status: 401 })
 	if (isBadParamsError(error)) return new Response(error.message, { status: 400 })
@@ -34,9 +33,9 @@ export class ExpectantQuery {
 }
 
 export class JsonBody {
-	body: Json
+	body: unknown
 
-	constructor(body: Json) {
+	constructor(body: unknown) {
 		this.body = body
 	}
 
@@ -44,9 +43,24 @@ export class JsonBody {
 		return new this(await request.json())
 	}
 
-	getValue(key: string): Json {
+	getValue(key: string): unknown {
+		if (!this.body || typeof this.body !== 'object') throw new Error('Expected body to be an object')
+		if (Array.isArray(this.body)) throw new Error('Expected body to be an object')
+
+		// @ts-ignore type check is below
 		const value = this.body[key]
 		if (value === undefined) throw new BadParamsError(`Expected a "${key}" property in body`)
+
+		return value
+	}
+
+	getMachineName(key: string) {
+		const value = this.getString(key)
+		if (!machineNameRegex.test(value)) {
+			throw new BadParamsError(
+				`Expected property "${key}" to be a machine readable name, matching the following regex: ${machineNameRegex}`,
+			)
+		}
 
 		return value
 	}
