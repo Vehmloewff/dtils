@@ -17,6 +17,7 @@
 //   - public key: `ec:pub`
 
 import { base64 } from '../deps.ts'
+import { joinByteArrays } from './binary.ts'
 
 interface ParsedSymmetricKey {
 	keyBytes: Uint8Array
@@ -36,7 +37,7 @@ const parseSymmetricKeyBytes = (bytes: Uint8Array): ParsedSymmetricKey => {
 }
 
 const prepareAesKeyBytes = (counterBytes: Uint8Array, keyBytes: Uint8Array) => {
-	return joinByteMaps(counterBytes, keyBytes)
+	return joinByteArrays(counterBytes, keyBytes)
 }
 
 const getAesAlgorithmData = (counter: Uint8Array): AesCtrParams => ({
@@ -73,15 +74,6 @@ const getEcAlgorithmData = (): EcdsaParams & EcKeyGenParams => ({
 
 const importEcKey = (keyData: ParsedAsymmetricKey, usages: KeyUsage[]) => {
 	return crypto.subtle.importKey(keyData.isPrivate ? 'pkcs8' : 'spki', keyData.keyBytes, getEcAlgorithmData(), false, usages)
-}
-
-const joinByteMaps = (map1: Uint8Array, map2: Uint8Array) => {
-	const joined = new Uint8Array(map1.length + map2.length)
-
-	for (let index = 0; index < map1.length; index++) joined[index] = map1[index]
-	for (let index = 0; index < map2.length; index++) joined[index + map1.length - 1] = map2[index]
-
-	return joined
 }
 
 /**  Symmetrically encrypt bytes using `keyBytes`, which must be an AES key, with a 16 byte counter prepended  */
