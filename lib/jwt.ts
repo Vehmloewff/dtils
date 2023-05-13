@@ -1,5 +1,4 @@
-import * as jwt from 'https://deno.land/x/djwt@v2.8/mod.ts'
-import * as base64 from 'https://deno.land/std@0.184.0/encoding/base64.ts'
+import { base64, jwtCore } from '../deps.ts'
 
 const algorithmData = {
 	name: 'HMAC',
@@ -14,12 +13,12 @@ export class JwtProducer<T> {
 	}
 
 	async create(lifetime: number, data: T) {
-		return await jwt.create({ alg: 'HS512', typ: 'JWT' }, { exp: Date.now() + lifetime, data }, this.#cryptoKey)
+		return await jwtCore.create({ alg: 'HS512', typ: 'JWT' }, { exp: Date.now() + lifetime, data }, this.#cryptoKey)
 	}
 
 	async verify(token: string): Promise<T | null> {
 		try {
-			const { data } = await jwt.verify(token, this.#cryptoKey)
+			const { data } = await jwtCore.verify(token, this.#cryptoKey)
 
 			return data as T
 		} catch (_) {
@@ -47,7 +46,7 @@ export async function generateJwtSecret() {
 }
 
 export function getTokenInformation<T>(token: string) {
-	const [_, payload, __] = jwt.decode(token)
+	const [_, payload, __] = jwtCore.decode(token)
 
 	// @ts-ignore payload should always be on the payload
 	const data = payload.data
