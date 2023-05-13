@@ -11,7 +11,16 @@ export interface Expect {
 
 type It = (description: string, cb: (expect: Expect) => void | Promise<void>) => Promise<void>
 
+/**
+ * Will be removed in the next major release
+ *
+ * @deprecated Use the BBD testing module in the Deno STD: https://deno.land/std@0.187.0/testing/bdd.ts */
 export function describe(module: string, cb: (it: It) => Promise<void> | void) {
+	console.warn(
+		colors.bold(colors.yellow('Warn')),
+		'Testing with this module has been deprecated in favor of https://deno.land/std@0.187.0/testing/bdd.ts',
+	)
+
 	const func = async () => {
 		console.log(colors.cyan(colors.bold(module)))
 
@@ -71,12 +80,13 @@ function createExpect(): Expect {
 		} catch (e) {
 			if (e instanceof asserts.AssertionError) throw e
 
-			if (type)
+			if (type) {
 				asserts.assertEquals(
 					e,
 					type,
-					`Actual error did not match the expected one\n\nActual:\n${JSON.stringify(e)}\n\nExpected:\n${JSON.stringify(type)}`
+					`Actual error did not match the expected one\n\nActual:\n${JSON.stringify(e)}\n\nExpected:\n${JSON.stringify(type)}`,
 				)
+			}
 		}
 	}
 
