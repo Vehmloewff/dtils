@@ -30,6 +30,3 @@ export function wrap(num: number, min: number, max: number) {
 
 	return num
 }
-
-10
-0 - 1
