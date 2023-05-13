@@ -57,8 +57,7 @@ export function matchPath(pattern: string, path: string): MatchPathResult | null
 			const key = patternSection.slice(1, -1)
 			const value = pathSection
 			result.params[key] = tryNumber(value)
-		}
-		// Otherwise, there is not a parameter.  Sections must match.
+		} // Otherwise, there is not a parameter.  Sections must match.
 		// If they don't exit the function prematurely
 		else if (patternSection !== pathSection) return null
 	}
@@ -84,16 +83,14 @@ function extractQuery(path: string): { query: string; path: string } {
 }
 
 /**
- * Parses a string of query string parameters
- * @returns
- */
+ * Parses a string of query string parameters */
 export function parseQuery(queryString: string): Record<string, boolean | string | number> {
 	const result: Record<string, boolean | string | number> = {}
 
 	if (!queryString.length) return result
 	if (queryString.startsWith('?')) queryString = queryString.slice(1)
 
-	queryString.split('&').forEach(kvPair => {
+	queryString.split('&').forEach((kvPair) => {
 		if (!kvPair.length) return
 
 		const [key, value] = kvPair.split('=')
