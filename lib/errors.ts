@@ -42,3 +42,12 @@ export function isNotFoundError(error: unknown): error is NotFoundError {
 	// @ts-ignore if error is not an object, expression will always be false
 	return error.code === 'NOT_FOUND'
 }
+
+export function errorFromResponse(status: number, text: string) {
+	if (status === 403) return new ForbiddenError(text)
+	if (status === 401) return new NotAuthenticatedError(text)
+	if (status === 400) return new BadParamsError(text)
+	if (status === 404) return new NotFoundError(text)
+
+	return new Error(text)
+}
