@@ -24,7 +24,7 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 - [x] Switch `sh` functions from `Deno.run` to `Deno.Command`
   - [x] Rewrite the `sh` api so that it can support future plans without any breaking changes
 - [x] Get rid of the `lib` directory. All files should be at root
-- [x] Remove `number/multiplyString` in favor of `String#repeat()`
+- [x] Remove `number.multiplyString` in favor of `String#repeat()`
 
 ## Future Plans
 
