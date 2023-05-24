@@ -73,3 +73,24 @@ export async function readJsonStrict(file: string): Promise<Json> {
 		throw 'Failed to parse "${file}":' + error
 	}
 }
+
+// Ported from https://deno.land/x/recursive_readdir@v2.0.0/mod.ts?source
+/** Recursively read all files in `rootDir`. Resulting paths will include `rootDir` */
+export async function recursiveReadDir(rootDir: string) {
+	const files: string[] = []
+
+	const getFiles = async (path: string) => {
+		for await (const dirEntry of Deno.readDir(path)) {
+			if (dirEntry.isDirectory) {
+				await getFiles(pathUtils.join(path, dirEntry.name))
+				continue
+			}
+
+			if (dirEntry.isFile) files.push(pathUtils.join(path, dirEntry.name))
+		}
+	}
+
+	await getFiles(rootDir)
+
+	return files
+}
