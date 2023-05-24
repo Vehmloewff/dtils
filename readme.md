@@ -21,8 +21,9 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 - [x] Remove `jsx` module
 - [x] Deprecate `describe/it/expect` from `tester`
 - [x] Remove `timeout` module in favor of `std/x/
-- [ ] Switch `sh` functions from `Deno.run` to `Deno.Command`
-  - [ ] Rewrite the `sh` api so that it can support future plans without any breaking changes
+- [x] Switch `sh` functions from `Deno.run` to `Deno.Command`
+  - [x] Rewrite the `sh` api so that it can support future plans without any breaking changes
+- [ ] Get rid of the `lib` directory. All files should be at root
 
 ## Future Plans
 

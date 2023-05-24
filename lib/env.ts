@@ -55,6 +55,13 @@ export function getShouldReloadDeps(): boolean {
 	return reload
 }
 
+export function sureGetEnvVar(name: string) {
+	const variable = Deno.env.get(name)
+	if (!variable) throw new Error(`Expected env var ${name} to be set`)
+
+	return variable
+}
+
 function inferReload() {
 	const reload = Deno.env.get('RELOAD_DEPS')
 	if (!reload || reload === '0' || reload === 'false') return false
