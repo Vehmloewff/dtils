@@ -31,6 +31,9 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 - [ ] (`sh`) add support for line-mapping stdout and stderr streams
 - [ ] (`sh`) add functions to easily start a deno process
 - [ ] Add a lot of testing utilities, such as `TestServer`
+- [ ] Add JSON utils, such as the ability to parse something to unknown and then safely get it peicemeal
+- [ ] Add cbor utils, with same json safety
+- [ ] Add http client utilities
 - [ ] Add number formatting utils, such as `formatLargeNumber`
 - [ ] Resurrect `logger` as a `console` interceptor and throttle
 - [ ] Add GIT functions that get the current branch, create a release, etc
