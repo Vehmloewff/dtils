@@ -20,14 +20,14 @@ export interface ExecOptions {
 	onSetup?(params: ExecEventParams): unknown | Promise<unknown>
 
 	/** A shortcut to setting the NO_COLOR env var */
-	supressColor?: boolean
+	suppressColor?: boolean
 
 	/**
 	 * Normally, only the $PATH env var is sent to the child process. If `true` the $PATH env var will not be sent to the child process.
 	 *
 	 * NOTE: This disables the automatic discovery of executables. You can use the `getExecFromPath` function to get the path to an executable
 	 * before running the child process. */
-	supressPath?: boolean
+	suppressPath?: boolean
 
 	/** The directory that the process should run in */
 	cwd?: string
@@ -45,7 +45,7 @@ export interface ExecCaptureIncrementalOptions extends ExecOptions {
 	onErrorLine?(line: string, params: ExecEventParams): unknown | Promise<unknown>
 }
 
-/** Executes `command` in defualt shell, printing the command's output. Throws if command exits with a non-zero status */
+/** Executes `command` in default shell, printing the command's output. Throws if command exits with a non-zero status */
 export async function sh(command: string, options: ExecOptions = {}) {
 	return exec(await getCommandArgs(command), options)
 }
@@ -64,7 +64,7 @@ export async function shCapture(command: string, options: ExecOptions = {}) {
 
 /**
  * Executes `command` in default shell. Incrementally calls `options.onLogLine` and `options.onErrorLine`
- * for each new line writen to stdout an stderr, respectively. Throws if command exits with a
+ * for each new line written to stdout an stderr, respectively. Throws if command exits with a
  * non-zero status. */
 export async function shCaptureIncremental(command: string, options: ExecCaptureIncrementalOptions = {}) {
 	return execCaptureIncremental(await getCommandArgs(command), options)
@@ -118,7 +118,7 @@ export async function execCapture(segments: string[], options: ExecOptions = {})
 
 /**
  * Executes `segments` as a child process. Incrementally calls `options.onLogLine` and `options.onErrorLine`
- * for each new line writen to the child's stdout an stderr, respectively. Throws if the child exits with a
+ * for each new line written to the child's stdout an stderr, respectively. Throws if the child exits with a
  * non-zero status.
  *
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
@@ -127,8 +127,8 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 
 	const env = { ...options.env }
 
-	if (options.supressColor && !env.NO_COLOR) env.NO_COLOR = '1'
-	if (!options.supressPath && !env.PATH) env.PATH = sureGetEnvVar('PATH')
+	if (options.suppressColor && !env.NO_COLOR) env.NO_COLOR = '1'
+	if (!options.suppressPath && !env.PATH) env.PATH = sureGetEnvVar('PATH')
 
 	const process = new Deno.Command(segments[0], {
 		args: segments.slice(1),
@@ -148,7 +148,7 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 	const logLinesStream = process.stdout.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
 	const errorLinesStream = process.stderr.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
 
-	const oututPromise = readStreamToFn(logLinesStream, async (line) => {
+	const outputPromise = readStreamToFn(logLinesStream, async (line) => {
 		if (options.onLogLine) await options.onLogLine(line, eventParams)
 	})
 
@@ -158,7 +158,8 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 		if (options.onErrorLine) await options.onErrorLine(line, eventParams)
 	})
 
-	const [status] = await Promise.all([process.status, oututPromise, outputLogPromise])
+	const [status] = await Promise.all([process.status, outputPromise, outputLogPromise])
+	process.stdin.close()
 
 	if (status.success) return
 
