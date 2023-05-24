@@ -1,4 +1,4 @@
-import { base64, jwtCore } from '../deps.ts'
+import { base64, jwtCore } from './deps.ts'
 
 const algorithmData = {
 	name: 'HMAC',

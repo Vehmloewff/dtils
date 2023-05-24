@@ -1,6 +1,6 @@
 import { chooseArrItemFromString } from './random.ts'
 import { readText, writeText } from './fs.ts'
-import { colors as colorTools, pathUtils } from '../deps.ts'
+import { colors as colorTools, pathUtils } from './deps.ts'
 import { formatDate, monthsAbbr } from './date.ts'
 import { arraysMatch } from './array.ts'
 
@@ -8,9 +8,82 @@ let stashedDebugStrategy: string | null = null
 let stashedDebugOutput: string | null = null
 
 const colors = [
-	20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68, 69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112,
-	113, 128, 129, 134, 135, 148, 149, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 178, 179, 184, 185, 196, 197,
-	198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 214, 215, 220, 221,
+	20,
+	21,
+	26,
+	27,
+	32,
+	33,
+	38,
+	39,
+	40,
+	41,
+	42,
+	43,
+	44,
+	45,
+	56,
+	57,
+	62,
+	63,
+	68,
+	69,
+	74,
+	75,
+	76,
+	77,
+	78,
+	79,
+	80,
+	81,
+	92,
+	93,
+	98,
+	99,
+	112,
+	113,
+	128,
+	129,
+	134,
+	135,
+	148,
+	149,
+	160,
+	161,
+	162,
+	163,
+	164,
+	165,
+	166,
+	167,
+	168,
+	169,
+	170,
+	171,
+	172,
+	173,
+	178,
+	179,
+	184,
+	185,
+	196,
+	197,
+	198,
+	199,
+	200,
+	201,
+	202,
+	203,
+	204,
+	205,
+	206,
+	207,
+	208,
+	209,
+	214,
+	215,
+	220,
+	221,
 ]
 
 const chooseRandomColor = (str: string) => {
@@ -44,20 +117,19 @@ export function debug(scope: string) {
 
 		if (!scopeMatchesStrategy(scope, stashedDebugStrategy)) return
 
-		const strung =
-			args
-				.map(arg => {
-					if (typeof arg === 'string') return arg
-					return Deno.inspect(arg, { depth: Infinity })
-				})
-				.join(' ') + '\n'
+		const strung = args
+			.map((arg) => {
+				if (typeof arg === 'string') return arg
+				return Deno.inspect(arg, { depth: Infinity })
+			})
+			.join(' ') + '\n'
 
 		if (stashedDebugOutput) {
 			writeLog(`${formatDate(new Date(), 'hh:MM:ss:l T')} ${scope} ${colorTools.stripColor(strung)}`)
 		} else {
 			const now = Date.now()
 			Deno.stdout.writeSync(
-				new TextEncoder().encode(`${colorTools.bold(colorFunc())} ${strung.trim()} ${colorTools.gray(`+${now - lastTime}ms`)}\n`)
+				new TextEncoder().encode(`${colorTools.bold(colorFunc())} ${strung.trim()} ${colorTools.gray(`+${now - lastTime}ms`)}\n`),
 			)
 			lastTime = now
 		}
@@ -74,10 +146,9 @@ function writeLog(log: string) {
 }
 
 function scheduleWrite() {
-	const leaveLeftovers = () =>
-		(leftoverPromise = new Promise(resolve => {
-			writeLogs(nextLogs).then(() => resolve(null))
-		}))
+	const leaveLeftovers = () => (leftoverPromise = new Promise((resolve) => {
+		writeLogs(nextLogs).then(() => resolve(null))
+	}))
 
 	if (leftoverPromise) {
 		if (writeScheduled) return
@@ -101,8 +172,8 @@ async function writeLogs(logs: string[]) {
 }
 
 function scopeMatchesStrategy(scope: string, strategy: string) {
-	const scopeSections = scope.split(':').map(t => t.trim())
-	const strategySections = strategy.split(':').map(t => t.trim())
+	const scopeSections = scope.split(':').map((t) => t.trim())
+	const strategySections = strategy.split(':').map((t) => t.trim())
 
 	const isWild = strategySections[strategySections.length - 1] === '*'
 	if (isWild) strategySections.pop()

@@ -1,4 +1,4 @@
-import { asserts } from '../deps.ts'
+import { asserts } from './deps.ts'
 import { binaryToString, stringToBinary } from './binary.ts'
 import {
 	decryptAsymmetrically,

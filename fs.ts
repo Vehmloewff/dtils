@@ -1,4 +1,4 @@
-import { pathUtils } from '../deps.ts'
+import { pathUtils } from './deps.ts'
 import { Json } from './json.ts'
 
 export async function exists(file: string) {

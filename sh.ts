@@ -1,4 +1,4 @@
-import { colors, pathUtils, streamUtils } from '../deps.ts'
+import { colors, pathUtils, streamUtils } from './deps.ts'
 import { sureGetEnvVar } from './env.ts'
 import { exists } from './fs.ts'
 import { readStreamToFn } from './stream.ts'

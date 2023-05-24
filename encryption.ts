@@ -16,7 +16,7 @@
 //   - private key: `ec:private`
 //   - public key: `ec:pub`
 
-import { base64 } from '../deps.ts'
+import { base64 } from './deps.ts'
 import { joinByteArrays } from './binary.ts'
 
 interface ParsedSymmetricKey {

@@ -1,4 +1,4 @@
-import { asserts, colors } from '../deps.ts'
+import { asserts, colors } from './deps.ts'
 
 let failed = 0
 let passed = 0
