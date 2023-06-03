@@ -55,6 +55,16 @@ export function getShouldReloadDeps(): boolean {
 	return reload
 }
 
+/** Get the standard application env vars (ENV, RELOAD_DEPS, DEPLOY, and LOG_LEVEL) as an env object */
+export function getStandardEnv() {
+	const ENV = getEnv()
+	const RELOAD_DEPS = getShouldReloadDeps() ? '1' : '0'
+	const DEPLOY = getShouldDeploy() ? '1' : '0'
+	const LOG_LEVEL = getLogLevel()
+
+	return { ENV, RELOAD_DEPS, DEPLOY, LOG_LEVEL }
+}
+
 export function sureGetEnvVar(name: string) {
 	const variable = Deno.env.get(name)
 	if (!variable) throw new Error(`Expected env var ${name} to be set`)
