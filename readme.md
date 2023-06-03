@@ -9,6 +9,11 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 
 [Documentation](https://deno.land/x/dtils/mod.ts)
 
+## Unstable APIs
+
+Some utilities are currently unstable. Minor updates may cause breaking changes. These utilities, in addition to the stable ones, can be
+imported from `mod.unstable.ts`
+
 ## Known Issues
 
 - Most of these functions were extracted from larger and properly functioning projects I have written. There is thus a notable lack of unit
