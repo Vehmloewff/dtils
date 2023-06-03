@@ -28,7 +28,7 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 
 ## Future Plans
 
-- [ ] (`sh`) add support for line-mapping stdout and stderr streams
+- [x] (`sh`) add support for line-mapping stdout and stderr streams
 - [ ] (`sh`) add functions to easily start a deno process
 - [ ] Add a lot of testing utilities, such as `TestServer`
 - [ ] Add JSON utils, such as the ability to parse something to unknown and then safely get it peicemeal
@@ -44,6 +44,11 @@ Includes utils for fs, http, encryption, jwt, sh, random, date, and much, much m
 - [ ] Add a functions to backup a particular application's storage
 - [ ] Add functions to make downloading/unzipping files easier
 - [ ] Add functions to run builtin deno lint, deno test, and deno bench
+  - [x] test
+  - [x] fmt
+  - [x] lint
+  - [ ] bench
+  - [ ] Stabilize it all
 
 ## Can I Contribute?
 
