@@ -94,37 +94,36 @@ export function formatDate(date: Date, pattern: string): string {
 	if (pattern.slice(0, 4) === 'UTC:') date.getTimezoneOffset()
 
 	return pattern
+		// day
 		.replace(/dddd/g, getWeekday(date))
 		.replace(/ddd/g, getShortWeekday(date))
 		.replace(/dd/g, fixedStartDigits(getDate(date), 2))
 		.replace(/d/g, fixedStartDigits(getDate(date), null))
-
+		// month
 		.replace(/mmmm/g, getMonth(date))
 		.replace(/mmm/g, getShortMonth(date))
 		.replace(/mm/g, fixedStartDigits(getMonthDigits(date), 2))
 		.replace(/m/g, fixedStartDigits(getMonthDigits(date), null))
-
+		// year
 		.replace(/yyyy/g, String(getYear(date)))
 		.replace(/yy/g, String(getShortYear(date)))
-
+		// hour
 		.replace(/hh/g, fixedStartDigits(getHours(date), 2))
 		.replace(/h/g, fixedStartDigits(getHours(date), null))
-
 		.replace(/HH/g, fixedStartDigits(get24StyleHours(date), 2))
 		.replace(/H/g, fixedStartDigits(get24StyleHours(date), null))
-
+		// minutes
 		.replace(/MM/g, fixedStartDigits(getMinutes(date), 2))
 		.replace(/M/g, fixedStartDigits(getMinutes(date), null))
-
+		// seconds
 		.replace(/ss/g, fixedStartDigits(getSeconds(date), 2))
 		.replace(/s/g, fixedStartDigits(getSeconds(date), null))
-
+		// milliseconds
 		.replace(/l/g, fixedStartDigits(getMilliseconds(date), 3))
 		.replace(/L/g, fixedStartDigits(getMilliseconds(date), 2))
-
+		// AM/PM
 		.replace(/tt/g, isAM(date) ? 'am' : 'pm')
 		.replace(/t/g, isAM(date) ? 'a' : 'p')
-
 		.replace(/TT/g, isAM(date) ? 'AM' : 'PM')
 		.replace(/T/g, isAM(date) ? 'A' : 'P')
 }

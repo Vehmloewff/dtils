@@ -119,15 +119,18 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 
 		if (!descriptor.values) return ok()
 
-		if (descriptor.values.indexOf(value) === -1)
+		if (descriptor.values.indexOf(value) === -1) {
 			return notOk([
 				{
-					message: `Expected one of the following values: ${descriptor.values
-						.map(i => `'${i}'`)
-						.join(', ')}, but found '${value}'`,
+					message: `Expected one of the following values: ${
+						descriptor.values
+							.map((i) => `'${i}'`)
+							.join(', ')
+					}, but found '${value}'`,
 					path,
 				},
 			])
+		}
 
 		return ok()
 	}
@@ -140,13 +143,16 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 			else return notOk([{ message: `NaN is not allowed`, path }])
 		}
 
-		if (descriptor.min !== undefined && value < descriptor.min)
+		if (descriptor.min !== undefined && value < descriptor.min) {
 			return notOk([{ message: `Value was ${value}, lower than the minimum of ${descriptor.min}`, path }])
-		if (descriptor.max !== undefined && value > descriptor.max)
+		}
+		if (descriptor.max !== undefined && value > descriptor.max) {
 			return notOk([{ message: `Value was ${value}, greater than the maximum of ${descriptor.max}`, path }])
+		}
 
-		if (descriptor.forbidDecimals && String(value).indexOf('.') !== -1)
+		if (descriptor.forbidDecimals && String(value).indexOf('.') !== -1) {
 			return notOk([{ message: `Decimal numbers are not allowed`, path }])
+		}
 
 		return ok()
 	}
@@ -159,10 +165,12 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 	function validateArray(value: Json, descriptor: ArrayDescriptor, path: string): ValidatorResult {
 		if (!Array.isArray(value)) return notOk([{ message: `Expected an array, but got: ${value}`, path }])
 
-		if (descriptor.minLength !== undefined && value.length < descriptor.minLength)
+		if (descriptor.minLength !== undefined && value.length < descriptor.minLength) {
 			return notOk([{ message: `Array length was ${value}, lower than the minimum length of ${descriptor.minLength}`, path }])
-		if (descriptor.maxLength !== undefined && value.length > descriptor.maxLength)
+		}
+		if (descriptor.maxLength !== undefined && value.length > descriptor.maxLength) {
 			return notOk([{ message: `Array length was ${value}, greater than the maximum length of ${descriptor.maxLength}`, path }])
+		}
 
 		const errors: ValidatorError[] = []
 		const validator = getCorrectValidator(descriptor.keyType)
@@ -177,15 +185,16 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 	}
 
 	function validateObject(value: Json, descriptor: ObjectDescriptor, path: string): ValidatorResult {
-		if (typeof value !== 'object' || Array.isArray(value) || value === null || typeof value === 'undefined')
+		if (typeof value !== 'object' || Array.isArray(value) || value === null || typeof value === 'undefined') {
 			return notOk([{ message: `Expected an object, but found: ${value}`, path }])
+		}
 
 		// Keys and value types must match
 		if (descriptor.keys) {
 			const errors: ValidatorError[] = []
 			const uncheckedValueKeys = Object.keys(value)
 
-			Object.keys(descriptor.keys).forEach(key => {
+			Object.keys(descriptor.keys).forEach((key) => {
 				if (!descriptor.keys) throw new Error(`What was... wasn't...`)
 
 				const index = uncheckedValueKeys.indexOf(key)
@@ -198,17 +207,16 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 				if (!res.ok) errors.push(...res.errors)
 			})
 
-			uncheckedValueKeys.forEach(key => errors.push({ message: `Property '${key}' is not allowed here`, path }))
+			uncheckedValueKeys.forEach((key) => errors.push({ message: `Property '${key}' is not allowed here`, path }))
 
 			if (errors.length) return notOk(errors)
 			return ok()
-		}
-		// Each key must match this descriptor
+		} // Each key must match this descriptor
 		else if (descriptor.valueType) {
 			const validator = getCorrectValidator(descriptor.valueType)
 			const errors: ValidatorError[] = []
 
-			Object.keys(value).forEach(key => {
+			Object.keys(value).forEach((key) => {
 				const item = value[key]
 				const newPath = getIdKeyFormat(path, key)
 
@@ -220,8 +228,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 
 			if (errors.length) return notOk(errors)
 			return ok()
-		}
-		// Object is expected to be empty
+		} // Object is expected to be empty
 		else {
 			if (Object.keys(value).length) return notOk([{ message: `Expected object to be empty`, path }])
 			return ok()
@@ -245,7 +252,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 		}
 
 		return notOk([
-			{ message: `Did not match any of the types expected: ${descriptor.options.map(t => t.type).join(', ')}`, path },
+			{ message: `Did not match any of the types expected: ${descriptor.options.map((t) => t.type).join(', ')}`, path },
 			...errors,
 		])
 	}
@@ -256,7 +263,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 	if (res.ok) return res
 	return {
 		ok: false,
-		errors: res.errors.map(error => {
+		errors: res.errors.map((error) => {
 			if (error.path.startsWith('.')) error.path = error.path.slice(1)
 			return error
 		}),

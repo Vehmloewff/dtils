@@ -35,7 +35,7 @@ export function getHash(str: string, min: number, max: number) {
 
 	btoa(str)
 		.split('')
-		.forEach(char => {
+		.forEach((char) => {
 			if (char === '=') return
 
 			char = char.toLowerCase()
