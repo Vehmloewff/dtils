@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: ["next"]
+  pull_request:
+    branches: ["next"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run Tests
+        run: deno test -A
+
+      - name: Test Formatting
+        run: deno fmt --check
+
+      - name: Lint
+        run: deno lint
