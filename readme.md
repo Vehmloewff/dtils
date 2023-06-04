@@ -20,17 +20,6 @@ imported from `mod.unstable.ts`
   tests. Any contributions in this spectrum would be greatly appreciated.
 - Module and doc comments need to be used more heavily
 
-## V2 Checklist
-
-- [x] Don't mess with labels on encryption keys
-- [x] Remove `jsx` module
-- [x] Remove `describe/it/expect` from `tester` in favor or deno/std/testing/bbd
-- [x] Remove `timeout` module in favor of `std/x/
-- [x] Switch `sh` functions from `Deno.run` to `Deno.Command`
-  - [x] Rewrite the `sh` api so that it can support future plans without any breaking changes
-- [x] Get rid of the `lib` directory. All files should be at root
-- [x] Remove `number.multiplyString` in favor of `String#repeat()`
-
 ## Future Plans
 
 - [x] (`sh`) add support for line-mapping stdout and stderr streams
