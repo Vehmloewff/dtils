@@ -36,6 +36,11 @@ export interface ExecOptions {
 	env?: Record<string, string>
 }
 
+export interface ExecCaptureResult {
+	errorLines: string[]
+	logLines: string[]
+}
+
 export interface ExecEventParams {
 	process: Deno.ChildProcess
 }
@@ -46,19 +51,19 @@ export interface ExecCaptureIncrementalOptions extends ExecOptions {
 }
 
 /** Executes `command` in default shell, printing the command's output. Throws if command exits with a non-zero status */
-export async function sh(command: string, options: ExecOptions = {}) {
+export async function sh(command: string, options: ExecOptions = {}): Promise<void> {
 	return exec(await getCommandArgs(command), options)
 }
 
 /** Executes `command` in default shell. Throws if command exits with a non-zero status. */
-export async function shIgnore(command: string, options: ExecOptions = {}) {
+export async function shIgnore(command: string, options: ExecOptions = {}): Promise<void> {
 	return execIgnore(await getCommandArgs(command), options)
 }
 
 /**
  * Executes `command` in default shell. Returns `errorLines` and `logLines` containing all the lines written
  * to stdout and stderr, respectively. Throws if command exits with a non-zero status. */
-export async function shCapture(command: string, options: ExecOptions = {}) {
+export async function shCapture(command: string, options: ExecOptions = {}): Promise<ExecCaptureResult> {
 	return execCapture(await getCommandArgs(command), options)
 }
 
@@ -66,7 +71,7 @@ export async function shCapture(command: string, options: ExecOptions = {}) {
  * Executes `command` in default shell. Incrementally calls `options.onLogLine` and `options.onErrorLine`
  * for each new line written to stdout an stderr, respectively. Throws if command exits with a
  * non-zero status. */
-export async function shCaptureIncremental(command: string, options: ExecCaptureIncrementalOptions = {}) {
+export async function shCaptureIncremental(command: string, options: ExecCaptureIncrementalOptions = {}): Promise<void> {
 	return execCaptureIncremental(await getCommandArgs(command), options)
 }
 
@@ -74,7 +79,7 @@ export async function shCaptureIncremental(command: string, options: ExecCapture
  * Executes `segments` as a child process, printing the child's output. Throws if the child exits with a non-zero status
  *
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
-export async function exec(segments: string[], options: ExecOptions = {}) {
+export async function exec(segments: string[], options: ExecOptions = {}): Promise<void> {
 	await execCaptureIncremental(segments, {
 		...options,
 		onErrorLine(line) {
@@ -90,7 +95,7 @@ export async function exec(segments: string[], options: ExecOptions = {}) {
  * Executes `segments` as a child process. Throws if the child exits with a non-zero status.
  *
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
-export async function execIgnore(segments: string[], options: ExecOptions = {}) {
+export async function execIgnore(segments: string[], options: ExecOptions = {}): Promise<void> {
 	await execCaptureIncremental(segments, options)
 }
 
@@ -99,7 +104,7 @@ export async function execIgnore(segments: string[], options: ExecOptions = {}) 
  * to the child's stdout and stderr, respectively. Throws if the child exits with a non-zero status.
  *
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
-export async function execCapture(segments: string[], options: ExecOptions = {}) {
+export async function execCapture(segments: string[], options: ExecOptions = {}): Promise<ExecCaptureResult> {
 	const errorLines: string[] = []
 	const logLines: string[] = []
 
@@ -122,7 +127,7 @@ export async function execCapture(segments: string[], options: ExecOptions = {})
  * non-zero status.
  *
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
-export async function execCaptureIncremental(segments: string[], options: ExecCaptureIncrementalOptions = {}) {
+export async function execCaptureIncremental(segments: string[], options: ExecCaptureIncrementalOptions = {}): Promise<void> {
 	if (!segments.length) throw new Error('segments must not be empty')
 
 	const env = { ...options.env }
@@ -172,7 +177,7 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 	throw new Error(`Command failed: ${paddedHeap}`)
 }
 
-export async function getExecFromPath(name: string) {
+export async function getExecFromPath(name: string): Promise<string> {
 	const path = Deno.env.get('PATH')
 	if (!path) throw new Error('Could not detect the $PATH env var')
 

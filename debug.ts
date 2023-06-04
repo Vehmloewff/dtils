@@ -104,7 +104,9 @@ const initDebugStashes = () => {
 let lastTime = Date.now()
 const scopes: Map<string, () => string> = new Map()
 
-export function debug(scope: string) {
+export type DebugLogFn = (...args: unknown[]) => void
+
+export function debug(scope: string): DebugLogFn {
 	initDebugStashes()
 	if (!scopes.has(scope)) scopes.set(scope, chooseRandomColor(scope))
 

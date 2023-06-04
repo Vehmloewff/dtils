@@ -43,7 +43,7 @@ export function isNotFoundError(error: unknown): error is NotFoundError {
 	return error.code === 'NOT_FOUND'
 }
 
-export function errorFromResponse(status: number, text: string) {
+export function errorFromResponse(status: number, text: string): Error {
 	if (status === 403) return new ForbiddenError(text)
 	if (status === 401) return new NotAuthenticatedError(text)
 	if (status === 400) return new BadParamsError(text)

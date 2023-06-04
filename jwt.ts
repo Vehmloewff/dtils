@@ -12,7 +12,7 @@ export class JwtProducer<T> {
 		this.#cryptoKey = cryptoKey
 	}
 
-	async create(lifetime: number, data: T) {
+	async create(lifetime: number, data: T): Promise<string> {
 		return await jwtCore.create({ alg: 'HS512', typ: 'JWT' }, { exp: Date.now() + lifetime, data }, this.#cryptoKey)
 	}
 
@@ -26,14 +26,14 @@ export class JwtProducer<T> {
 		}
 	}
 
-	static async from<T>(secret: string) {
+	static async from<T>(secret: string): Promise<JwtProducer<T>> {
 		const key = await crypto.subtle.importKey('raw', base64.decode(secret), algorithmData, false, ['sign', 'verify'])
 
 		return new this<T>(key)
 	}
 }
 
-export async function generateJwtSecret() {
+export async function generateJwtSecret(): Promise<string> {
 	const key = await crypto.subtle.generateKey(
 		algorithmData,
 		true,
@@ -45,7 +45,12 @@ export async function generateJwtSecret() {
 	return base64.encode(bytes)
 }
 
-export function getTokenInformation<T>(token: string) {
+export interface JwtTokenInformation<T> {
+	data: T
+	expiration: number
+}
+
+export function getTokenInformation<T>(token: string): JwtTokenInformation<T> {
 	const [_, payload, __] = jwtCore.decode(token)
 
 	// @ts-ignore payload should always be on the payload

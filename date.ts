@@ -16,22 +16,69 @@ export const weekdays = [`Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`,
 export const monthsAbbr = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Nov`, `Dec`]
 export const months = [`January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `November`, `December`]
 
-export const getYear = (date: Date) => date.getFullYear()
-export const getShortYear = (date: Date) => Number(String(getYear(date)).slice(-2))
-export const getShortMonth = (date: Date) => monthsAbbr[date.getMonth()]
-export const getMonth = (date: Date) => months[date.getMonth()]
-export const getMonthDigits = (date: Date) => date.getMonth() + 1
-export const getDate = (date: Date) => date.getDate()
-export const getShortWeekday = (date: Date) => weekdaysAbbr[date.getDay()]
-export const getWeekday = (date: Date) => weekdays[date.getDay()]
-export const getAMP = (date: Date) => (date.getHours() >= 12 ? 'PM' : 'AM')
-export const isAM = (date: Date) => date.getHours() >= 12
-export const getHours = (date: Date) => (date.getHours() > 12 ? date.getHours() - 12 : date.getHours())
-export const get24StyleHours = (date: Date) => date.getHours()
-export const getMinutes = (date: Date) => date.getMinutes()
-export const getSeconds = (date: Date) => date.getSeconds()
-export const getMilliseconds = (date: Date) => date.getMilliseconds()
-export const getTimezone = (date: Date) => `${extractPrettyTimezone(date)} (GMT${negativeOrPositiveSign(date.getTimezoneOffset())}min)`
+export function getYear(date: Date): number {
+	return date.getFullYear()
+}
+
+export function getShortYear(date: Date): number {
+	return Number(String(getYear(date)).slice(-2))
+}
+
+export function getShortMonth(date: Date): string {
+	return monthsAbbr[date.getMonth()]
+}
+
+export function getMonth(date: Date): string {
+	return months[date.getMonth()]
+}
+
+export function getMonthDigits(date: Date): number {
+	return date.getMonth() + 1
+}
+
+export function getDate(date: Date): number {
+	return date.getDate()
+}
+
+export function getShortWeekday(date: Date): string {
+	return weekdaysAbbr[date.getDay()]
+}
+
+export function getWeekday(date: Date): string {
+	return weekdays[date.getDay()]
+}
+
+export function getAMP(date: Date): string {
+	return (date.getHours() >= 12 ? 'PM' : 'AM')
+}
+
+export function isAM(date: Date): boolean {
+	return date.getHours() >= 12
+}
+
+export function getHours(date: Date): number {
+	return (date.getHours() > 12 ? date.getHours() - 12 : date.getHours())
+}
+
+export function get24StyleHours(date: Date): number {
+	return date.getHours()
+}
+
+export function getMinutes(date: Date): number {
+	return date.getMinutes()
+}
+
+export function getSeconds(date: Date): number {
+	return date.getSeconds()
+}
+
+export function getMilliseconds(date: Date): number {
+	return date.getMilliseconds()
+}
+
+export function getTimezone(date: Date): string {
+	return `${extractPrettyTimezone(date)} (GMT${negativeOrPositiveSign(date.getTimezoneOffset())}min)`
+}
 
 /**
  * Format `date` using the specified `pattern`.

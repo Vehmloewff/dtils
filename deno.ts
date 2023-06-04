@@ -31,14 +31,14 @@ export interface DenoOptions {
 }
 
 /** Run Deno's builtin test suite */
-export async function test(options: DenoExecOptions = {}) {
+export async function test(options: DenoExecOptions = {}): Promise<void> {
 	const args = ['deno', 'test', ...stringifyDenoExecOptions(options)]
 
 	await exec(args, { env: getStandardEnv() })
 }
 
 /** Run Deno's builtin linter */
-export async function lint(options: DenoOptions = {}) {
+export async function lint(options: DenoOptions = {}): Promise<void> {
 	const args = [
 		'deno',
 		'lint',
@@ -54,7 +54,7 @@ export interface FormatOptions extends DenoOptions {
 }
 
 /** Run Deno's builtin formatter */
-export async function format(options: FormatOptions = {}) {
+export async function format(options: FormatOptions = {}): Promise<void> {
 	const args = ['deno', 'fmt', ...stringifyDenoOptions(options)]
 
 	if (options.check) args.push('--check')
@@ -63,7 +63,7 @@ export async function format(options: FormatOptions = {}) {
 }
 
 /** Test, lint, and format check source code in the current working directory */
-export async function check(options: DenoExecOptions = {}) {
+export async function check(options: DenoExecOptions = {}): Promise<void> {
 	await Promise.all([
 		test(options).then(() => {
 			if (!options.quiet) console.log(colors.green('Success'), 'tests passed')

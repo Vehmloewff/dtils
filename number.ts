@@ -7,7 +7,7 @@ export function fixedStartDigits(number: number, digits: number | null): string 
 	else return str
 }
 
-export function wrap(num: number, min: number, max: number) {
+export function wrap(num: number, min: number, max: number): number {
 	if (min < 0) throw new Error('max must be greater than 0')
 	if (min >= max) throw new Error('max must be greater than min')
 

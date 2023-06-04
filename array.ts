@@ -18,7 +18,7 @@ export function arraysMatch<T>(a1: T[], a2: T[]): boolean {
 }
 
 /** Prepends new items onto items */
-export function prepend<T>(items: T[], newItems: T[]) {
+export function prepend<T>(items: T[], newItems: T[]): void {
 	if (!newItems.length) return
 
 	// loop through array backwards and unshift each element on

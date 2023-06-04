@@ -1,7 +1,7 @@
 import { BadParamsError, isBadParamsError, isForbiddenError, isNotAuthenticatedError, isNotFoundError, isUserError } from './errors.ts'
 import { machineNameRegex } from './regex.ts'
 
-export function errorToResponse(error: unknown) {
+export function errorToResponse(error: unknown): Response {
 	if (isForbiddenError(error)) return new Response(error.message, { status: 403 })
 	if (isNotAuthenticatedError(error)) return new Response(error.message, { status: 401 })
 	if (isBadParamsError(error)) return new Response(error.message, { status: 400 })
@@ -20,14 +20,14 @@ export class ExpectantQuery {
 		this.params = params
 	}
 
-	get(name: string) {
+	get(name: string): string {
 		const value = this.params.get(name)
 		if (!value) throw new BadParamsError(`Expected the "${name}" query param to be set`)
 
 		return value
 	}
 
-	static from(raw: string) {
+	static from(raw: string): ExpectantQuery {
 		return new this(new URLSearchParams(raw))
 	}
 }
@@ -39,7 +39,7 @@ export class JsonBody {
 		this.body = body
 	}
 
-	static async from(request: Request) {
+	static async from(request: Request): Promise<JsonBody> {
 		return new this(await request.json())
 	}
 
@@ -54,7 +54,7 @@ export class JsonBody {
 		return value
 	}
 
-	getMachineName(key: string) {
+	getMachineName(key: string): string {
 		const value = this.getString(key)
 		if (!machineNameRegex.test(value)) {
 			throw new BadParamsError(
@@ -65,14 +65,14 @@ export class JsonBody {
 		return value
 	}
 
-	getString(key: string) {
+	getString(key: string): string {
 		const value = this.getValue(key)
 		if (typeof value !== 'string') throw new BadParamsError(`Expected "${key}" to be of type string, but found "${typeof value}"`)
 
 		return value
 	}
 
-	static async fromResponse(response: Response) {
+	static async fromResponse(response: Response): Promise<JsonBody> {
 		return new this(await response.json())
 	}
 }

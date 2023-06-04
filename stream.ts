@@ -1,4 +1,4 @@
-export async function readStreamToFn<T>(stream: ReadableStream<T>, fn: (data: T) => void) {
+export async function readStreamToFn<T>(stream: ReadableStream<T>, fn: (data: T) => void): Promise<void> {
 	const reader = stream.getReader()
 
 	while (true) {

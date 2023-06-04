@@ -1,7 +1,7 @@
 import { pathUtils } from './deps.ts'
 import { Json } from './json.ts'
 
-export async function exists(file: string) {
+export async function exists(file: string): Promise<boolean> {
 	try {
 		await Deno.stat(file)
 		return true
@@ -15,12 +15,12 @@ const ensureDirExists = async (file: string) => {
 	if (!(await exists(dir))) await Deno.mkdir(dir, { recursive: true })
 }
 
-export async function writeBinary(file: string, binary: Uint8Array) {
+export async function writeBinary(file: string, binary: Uint8Array): Promise<void> {
 	await ensureDirExists(file)
 	await Deno.writeFile(file, binary)
 }
 
-export async function writeText(file: string, text: string) {
+export async function writeText(file: string, text: string): Promise<void> {
 	await ensureDirExists(file)
 	await Deno.writeTextFile(file, text)
 }
@@ -29,7 +29,7 @@ export interface WriteJsonOptions {
 	separator?: string
 }
 
-export async function writeJson(file: string, json: Json, options: WriteJsonOptions = {}) {
+export async function writeJson(file: string, json: Json, options: WriteJsonOptions = {}): Promise<void> {
 	await ensureDirExists(file)
 	await Deno.writeTextFile(file, JSON.stringify(json, null, options.separator))
 }
@@ -76,7 +76,7 @@ export async function readJsonStrict(file: string): Promise<Json> {
 
 // Ported from https://deno.land/x/recursive_readdir@v2.0.0/mod.ts?source
 /** Recursively read all files in `rootDir`. Resulting paths will include `rootDir` */
-export async function recursiveReadDir(rootDir: string) {
+export async function recursiveReadDir(rootDir: string): Promise<string[]> {
 	const files: string[] = []
 
 	const getFiles = async (path: string) => {

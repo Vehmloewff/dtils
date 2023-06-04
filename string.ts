@@ -1,10 +1,10 @@
-export function truncate(str: string, maxLength: number) {
+export function truncate(str: string, maxLength: number): string {
 	if (str.length > maxLength) return `${str.slice(0, maxLength - 1)}…`
 
 	return str
 }
 
-export function regexReplace(string: string, regex: RegExp, replacer: (match: string, ...groups: string[]) => string) {
+export function regexReplace(string: string, regex: RegExp, replacer: (match: string, ...groups: string[]) => string): string {
 	const match = string.match(regex)
 	if (!match) return string
 

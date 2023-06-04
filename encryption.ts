@@ -77,7 +77,7 @@ const importEcKey = (keyData: ParsedAsymmetricKey, usages: KeyUsage[]) => {
 }
 
 /**  Symmetrically encrypt bytes using `keyBytes`, which must be an AES key, with a 16 byte counter prepended  */
-export async function encryptSymmetricallyWithBytes(keyBytes: Uint8Array, plainBytes: Uint8Array) {
+export async function encryptSymmetricallyWithBytes(keyBytes: Uint8Array, plainBytes: Uint8Array): Promise<Uint8Array> {
 	const keyData = parseSymmetricKeyBytes(keyBytes)
 	const cryptoKey = await importAesKey(keyData, ['encrypt'])
 
@@ -86,12 +86,12 @@ export async function encryptSymmetricallyWithBytes(keyBytes: Uint8Array, plainB
 }
 
 /** Symmetrically encrypt bytes using `key`, which must be a base64 encoded AES key and prepended 16 byte counter */
-export async function encryptSymmetrically(key: string, plainBytes: Uint8Array) {
+export async function encryptSymmetrically(key: string, plainBytes: Uint8Array): Promise<Uint8Array> {
 	return await encryptSymmetricallyWithBytes(base64.decode(key), plainBytes)
 }
 
 /** Symmetrically decrypt bytes using `keyBytes`, which must be an AES key, with a 16 byte counter prepended */
-export async function decryptSymmetricallyUsingBytes(keyBytes: Uint8Array, encryptedBytes: Uint8Array) {
+export async function decryptSymmetricallyUsingBytes(keyBytes: Uint8Array, encryptedBytes: Uint8Array): Promise<Uint8Array> {
 	const keyData = parseSymmetricKeyBytes(keyBytes)
 	const cryptoKey = await importAesKey(keyData, ['decrypt'])
 
@@ -100,12 +100,12 @@ export async function decryptSymmetricallyUsingBytes(keyBytes: Uint8Array, encry
 }
 
 /** Symmetrically decrypt bytes using `key`, which must be a base64 encoded AES key and prepended 16 byte counter */
-export async function decryptSymmetrically(key: string, encryptedBytes: Uint8Array) {
+export async function decryptSymmetrically(key: string, encryptedBytes: Uint8Array): Promise<Uint8Array> {
 	return await decryptSymmetricallyUsingBytes(base64.decode(key), encryptedBytes)
 }
 
 /** Asymmetrically decrypt `encryptedBytes` using `privateKeyBytes`. Function will error if `privateKeyBytes` is not an RSA public key */
-export async function decryptAsymmetricallyUsingBytes(privateKeyBytes: Uint8Array, encryptedBytes: Uint8Array) {
+export async function decryptAsymmetricallyUsingBytes(privateKeyBytes: Uint8Array, encryptedBytes: Uint8Array): Promise<Uint8Array> {
 	const cryptoKey = await importRsaKey({ isPrivate: true, keyBytes: privateKeyBytes }, ['decrypt'])
 
 	const plainBuff = await crypto.subtle.decrypt(getRsaAlgorithmData(), cryptoKey, encryptedBytes)
@@ -113,12 +113,12 @@ export async function decryptAsymmetricallyUsingBytes(privateKeyBytes: Uint8Arra
 }
 
 /** Asymmetrically decrypt `encryptedBytes` using a base64 encoded `privateKey`. Function will error if `privateKey` is not an RSA private key */
-export async function decryptAsymmetrically(privateKey: string, encryptedBytes: Uint8Array) {
+export async function decryptAsymmetrically(privateKey: string, encryptedBytes: Uint8Array): Promise<Uint8Array> {
 	return await decryptAsymmetricallyUsingBytes(base64.decode(privateKey), encryptedBytes)
 }
 
 /** Asymmetrically encrypt `plainBytes` using `publicKeyBytes`. Function will error if `publicKeyBytes` is not an RSA public key */
-export async function encryptAsymmetricallyUsingBytes(publicKeyBytes: Uint8Array, plainBytes: Uint8Array) {
+export async function encryptAsymmetricallyUsingBytes(publicKeyBytes: Uint8Array, plainBytes: Uint8Array): Promise<Uint8Array> {
 	const cryptoKey = await importRsaKey({ isPrivate: false, keyBytes: publicKeyBytes }, ['encrypt'])
 
 	const encryptedBuff = await crypto.subtle.encrypt(getRsaAlgorithmData(), cryptoKey, plainBytes)
@@ -126,14 +126,14 @@ export async function encryptAsymmetricallyUsingBytes(publicKeyBytes: Uint8Array
 }
 
 /** Asymmetrically encrypt `plainBytes` using a base64 encoded `publicKey`. Function will error if `publicKey` is not an RSA public key */
-export async function encryptAsymmetrically(publicKey: string, plainBytes: Uint8Array) {
+export async function encryptAsymmetrically(publicKey: string, plainBytes: Uint8Array): Promise<Uint8Array> {
 	return await encryptAsymmetricallyUsingBytes(base64.decode(publicKey), plainBytes)
 }
 
 /**
  * Creates a digital signature using an EC private key. Note: function will error if the key passed
  * in is not a private key */
-export async function signUsingBytes(privateKeyBytes: Uint8Array, data: Uint8Array) {
+export async function signUsingBytes(privateKeyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
 	const cryptoKey = await importEcKey({ isPrivate: true, keyBytes: privateKeyBytes }, ['sign'])
 	const signatureBuff = await crypto.subtle.sign(getEcAlgorithmData(), cryptoKey, data)
 
@@ -143,14 +143,14 @@ export async function signUsingBytes(privateKeyBytes: Uint8Array, data: Uint8Arr
 /**
  * Creates a digital signature using a base64 encoded EC private key. Note: function will error if the key passed
  * in is not a private key */
-export async function sign(privateKey: string, data: Uint8Array) {
+export async function sign(privateKey: string, data: Uint8Array): Promise<string> {
 	return base64.encode(await signUsingBytes(base64.decode(privateKey), data))
 }
 
 /**
  * Verifies that `signature` is from the EC private key corresponding to `publicKey`. Function will error if `publicKey`
  * is not an EC public key */
-export async function verifyUsingBytes(signatureBytes: Uint8Array, publicKeyBytes: Uint8Array, data: Uint8Array) {
+export async function verifyUsingBytes(signatureBytes: Uint8Array, publicKeyBytes: Uint8Array, data: Uint8Array): Promise<boolean> {
 	const cryptoKey = await importEcKey({ isPrivate: false, keyBytes: publicKeyBytes }, ['verify'])
 
 	return await crypto.subtle.verify(getEcAlgorithmData(), cryptoKey, signatureBytes, data)
@@ -159,12 +159,12 @@ export async function verifyUsingBytes(signatureBytes: Uint8Array, publicKeyByte
 /**
  * Verifies that `signature` is from the EC private key corresponding to `publicKey`. Function will error if `publicKey`
  * is not a base64 encoded EC public key */
-export async function verify(signature: string, publicKey: string, data: Uint8Array) {
+export async function verify(signature: string, publicKey: string, data: Uint8Array): Promise<boolean> {
 	return await verifyUsingBytes(base64.decode(signature), base64.decode(publicKey), data)
 }
 
 /** Generates an encryption key for symmetric encryptions using the AES algorithm */
-export async function generateKeyBytes() {
+export async function generateKeyBytes(): Promise<Uint8Array> {
 	const counterBytes = crypto.getRandomValues(new Uint8Array(16))
 	const algorithm = getAesAlgorithmData(counterBytes)
 
@@ -175,7 +175,7 @@ export async function generateKeyBytes() {
 }
 
 /** Generates a base64 encoded encryption key for symmetric encryptions using the AES algorithm */
-export async function generateKey() {
+export async function generateKey(): Promise<string> {
 	return base64.encode(await generateKeyBytes())
 }
 
@@ -211,12 +211,12 @@ export async function generateKeyPair(algorithm: 'rsa' | 'ec'): Promise<KeyPair>
 }
 
 /** Generates a key pair for asymmetric encryptions using the RSA algorithm */
-export async function generateEncryptionKeyPairBytes() {
+export async function generateEncryptionKeyPairBytes(): Promise<KeyPairBytes> {
 	return await generateKeyPairBytes('rsa')
 }
 
 /** Generates a base64 encoded key pair for asymmetric encryptions using the RSA algorithm */
-export async function generateEncryptionKeyPair() {
+export async function generateEncryptionKeyPair(): Promise<KeyPair> {
 	return await generateKeyPair('rsa')
 }
 
@@ -231,7 +231,7 @@ export async function generateSigningKeyPair(): Promise<KeyPair> {
 }
 
 /** Hashes a password into a symmetric encryption key for encryptions using the AES algorithm */
-export async function hashPasswordBytes(passwordBytes: Uint8Array, saltBytes: Uint8Array) {
+export async function hashPasswordBytes(passwordBytes: Uint8Array, saltBytes: Uint8Array): Promise<Uint8Array> {
 	const importedKey = await crypto.subtle.importKey('raw', passwordBytes, 'PBKDF2', false, ['deriveBits'])
 
 	const derivation = await crypto.subtle.deriveBits(
@@ -254,7 +254,7 @@ export async function hashPasswordBytes(passwordBytes: Uint8Array, saltBytes: Ui
 /**
  * Hashes a password into a symmetric encryption key for encryptions using the AES algorithm. Function assumes that
  * password and salt are utf characters, not base64 */
-export async function hashPassword(password: string, salt: string) {
+export async function hashPassword(password: string, salt: string): Promise<string> {
 	const textEncoder = new TextEncoder()
 	const passwordBytes = textEncoder.encode(password)
 	const saltBytes = textEncoder.encode(salt)

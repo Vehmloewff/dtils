@@ -26,7 +26,7 @@ export function chooseArrItemFromString<T>(str: string, arr: T[]): T {
 }
 
 const chars = '0123456789abcdefghijklmnopqrstuvwxyz'.split('')
-export function getHash(str: string, min: number, max: number) {
+export function getHash(str: string, min: number, max: number): number {
 	min = Math.round(min)
 	max = Math.round(max)
 	if (min >= max) throw new Error(`After rounding to the nearest whole number, max was not greater than min`)
