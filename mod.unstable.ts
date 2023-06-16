@@ -9,3 +9,4 @@
 export * from './mod.ts'
 
 export * from './deno.ts'
+export * from './record.ts'
