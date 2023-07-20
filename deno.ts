@@ -9,7 +9,6 @@
 // Untested. Logic is pretty simple. Should always "just work"
 
 import { colors } from './deps.ts'
-import { getStandardEnv } from './env.ts'
 import { exec } from './sh.ts'
 
 export type DenoExecPermissions = 'all' | Deno.PermissionOptions
@@ -34,7 +33,7 @@ export interface DenoOptions {
 export async function test(options: DenoExecOptions = {}): Promise<void> {
 	const args = ['deno', 'test', ...stringifyDenoExecOptions(options)]
 
-	await exec(args, { env: getStandardEnv() })
+	await exec(args, { env: Deno.env.toObject() })
 }
 
 /** Run Deno's builtin linter */
@@ -46,7 +45,7 @@ export async function lint(options: DenoOptions = {}): Promise<void> {
 		...stringifyDenoOptions({ ...options }),
 	]
 
-	await exec(args, { env: getStandardEnv() })
+	await exec(args, { env: Deno.env.toObject() })
 }
 
 export interface FormatOptions extends DenoOptions {
@@ -59,7 +58,7 @@ export async function format(options: FormatOptions = {}): Promise<void> {
 
 	if (options.check) args.push('--check')
 
-	await exec(args, { env: getStandardEnv() })
+	await exec(args, { env: Deno.env.toObject() })
 }
 
 /** Test, lint, and format check source code in the current working directory */
