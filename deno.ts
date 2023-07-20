@@ -19,6 +19,9 @@ export interface DenoExecOptions extends DenoOptions {
 	 *
 	 * NOTE: 'inherit' permissions are equivalent to 'all' */
 	permissions?: DenoExecPermissions
+
+	/** If true, operation be provided with the unstable apis of the Deno runtime */
+	unstable?: boolean
 }
 
 export interface DenoOptions {
@@ -91,6 +94,7 @@ function stringifyDenoExecOptions(options: DenoExecOptions) {
 	args.push(...stringifyDenoOptions(options))
 
 	if (options.permissions) args.push(...stringifyPermissions(options.permissions))
+	if (options.unstable) args.push('--unstable')
 
 	return args
 }
