@@ -77,6 +77,8 @@ export async function readJsonStrict(file: string): Promise<Json> {
 // Ported from https://deno.land/x/recursive_readdir@v2.0.0/mod.ts?source
 /** Recursively read all files in `rootDir`. Resulting paths will include `rootDir` */
 export async function recursiveReadDir(rootDir: string): Promise<string[]> {
+	if (!await exists(rootDir)) return []
+
 	const files: string[] = []
 
 	const getFiles = async (path: string) => {
