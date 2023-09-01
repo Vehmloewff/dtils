@@ -9,5 +9,6 @@
 		"rules": {
 			"include": ["no-external-import", "explicit-module-boundary-types"]
 		}
-	}
+	},
+	"lock": false
 }
