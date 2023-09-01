@@ -52,6 +52,10 @@ export async function readBytes(file: string): Promise<Uint8Array | null> {
 	}
 }
 
+/**
+ * Read a file as a string. Returns an empty string if the file doesn't exist.
+ *
+ * NOTICE: At the next major release, this will return string|null */
 export async function readText(file: string): Promise<string> {
 	try {
 		return await Deno.readTextFile(file)
@@ -60,6 +64,10 @@ export async function readText(file: string): Promise<string> {
 	}
 }
 
+/**
+ * Read a file, parsing it as json. Returns an empty object if the file doesn't exist or can't be parsed.
+ *
+ * NOTICE: At the next major release, this will return Json|null */
 export async function readJson(file: string): Promise<Json> {
 	try {
 		return JSON.parse(await Deno.readTextFile(file))
@@ -68,6 +76,10 @@ export async function readJson(file: string): Promise<Json> {
 	}
 }
 
+/**
+ * Read a file, parsing it as json. Returns an empty object if the file doesn't exist. Throws if the json can't be parsed.
+ *
+ * NOTICE: At the next major release, this will return Json|null */
 export async function readJsonStrict(file: string): Promise<Json> {
 	let json: string
 
