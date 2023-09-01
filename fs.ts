@@ -34,11 +34,21 @@ export async function writeJson(file: string, json: Json, options: WriteJsonOpti
 	await Deno.writeTextFile(file, JSON.stringify(json, null, options.separator))
 }
 
+/** @deprecated Will be removed in next major release. Use `readBytes` instead */
 export async function readBinary(file: string): Promise<Uint8Array> {
 	try {
 		return await Deno.readFile(file)
 	} catch (_) {
 		return new Uint8Array()
+	}
+}
+
+/** Read a file as a Uint8Array. Returns `null` if the file doesn't exist */
+export async function readBytes(file: string): Promise<Uint8Array | null> {
+	try {
+		return await Deno.readFile(file)
+	} catch (_) {
+		return null
 	}
 }
 
