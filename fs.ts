@@ -106,3 +106,14 @@ export async function recursiveReadDir(rootDir: string): Promise<string[]> {
 
 	return files
 }
+
+/** Get all entries in `dir`. Resulting paths will not include `dir`  */
+export async function readDir(dir: string): Promise<string[]> {
+	if (!await exists(dir)) return []
+
+	const names: string[] = []
+
+	for await (const dirEntry of Deno.readDir(dir)) names.push(dirEntry.name)
+
+	return names
+}
