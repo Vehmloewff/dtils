@@ -1,3 +1,4 @@
+export * from './hash/mod.ts'
 export * from './array.ts'
 export * from './binary.ts'
 export * from './date.ts'
