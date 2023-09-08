@@ -28,3 +28,44 @@ export function regexReplace(string: string, regex: RegExp, replacer: (match: st
 
 	return resultString
 }
+
+/** Concatenates two strings in such a way that path delimiter attacks cannot occur */
+export function concatenate(sections: string[]): string {
+	return sections.map((section) => section.replaceAll('\\', '\\\\').replaceAll('/', '\\/')).join('/')
+}
+
+/** Slices a string concatenated with `concat` into an array of sections */
+export function sliceConcatenated(concatenated: string): string[] {
+	const sections: string[] = []
+
+	let isEscaped = false
+	let currentSection = ''
+
+	for (const char of concatenated.split('')) {
+		if (isEscaped) {
+			isEscaped = false
+			currentSection += char
+
+			continue
+		}
+
+		if (char === '\\') {
+			isEscaped = true
+
+			continue
+		}
+
+		if (char === '/') {
+			sections.push(currentSection)
+			currentSection = ''
+
+			continue
+		}
+
+		currentSection += char
+	}
+
+	sections.push(currentSection)
+
+	return sections
+}
