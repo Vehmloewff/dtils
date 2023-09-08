@@ -1,11 +1,13 @@
 // deno-lint-ignore no-explicit-any
 export type Json = any
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface StringDescriptor {
 	type: 'string'
 	values?: string[]
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface NumberDescriptor {
 	type: 'number'
 	min?: number
@@ -16,14 +18,17 @@ export interface NumberDescriptor {
 	canBeNaN?: boolean
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface NullDescriptor {
 	type: 'null'
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface BooleanDescriptor {
 	type: 'boolean'
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface ArrayDescriptor {
 	type: 'array'
 	keyType: JsonDescriptor
@@ -31,6 +36,7 @@ export interface ArrayDescriptor {
 	minLength?: number
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface ObjectDescriptor {
 	type: 'object'
 	/** Either `keys` or `valueType` must be specified */
@@ -44,15 +50,18 @@ export interface ObjectDescriptor {
 	valueType?: JsonDescriptor
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface AnyDescriptor {
 	type: 'any'
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface TypeChoiceDescriptor {
 	type: 'choice'
 	options: JsonDescriptor[]
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export type JsonDescriptor =
 	| NullDescriptor
 	| StringDescriptor
@@ -63,21 +72,26 @@ export type JsonDescriptor =
 	| AnyDescriptor
 	| TypeChoiceDescriptor
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface ValidatorError {
 	message: string
 	path: string
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface ValidatorResultOk {
 	ok: true
 }
+/** @deprecated Use `SafeUnknown` instead of validators */
 export interface ValidatorResultNotOk {
 	ok: false
 	errors: ValidatorError[]
 }
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export type ValidatorResult = ValidatorResultOk | ValidatorResultNotOk
 
+/** @deprecated Use `SafeUnknown` instead of validators */
 export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorResult {
 	interface ValidatorResultOk {
 		ok: true
@@ -271,31 +285,31 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 }
 
 // deno-lint-ignore ban-types
-export function jsonParse(string: string, fallback: {} | [] | null = null): Json {
-	if (!string.length) return string
-	if (string.startsWith('"') && string.endsWith('"')) return string.slice(1, -1)
-	if (string === 'true') return true
-	if (string === 'false') return false
-	if (string === 'null' || string === 'undefined') return null
-	if ((string.startsWith('{') && string.endsWith('}')) || (string.startsWith('[') && string.endsWith(']'))) {
+export function jsonParse(json: string, fallback: {} | [] | null = null): Json {
+	if (!json.length) return json
+	if (json.startsWith('"') && json.endsWith('"')) return json.slice(1, -1)
+	if (json === 'true') return true
+	if (json === 'false') return false
+	if (json === 'null' || json === 'undefined') return null
+	if ((json.startsWith('{') && json.endsWith('}')) || (json.startsWith('[') && json.endsWith(']'))) {
 		try {
-			return JSON.parse(string)
+			return JSON.parse(json)
 		} catch (e) {
 			if (!fallback) {
-				e.raw = string
+				e.raw = json
 				throw e
 			}
-			console.warn(`Failed to parse JSON.  Resorting to fallback.  DUMP:`, e, string)
+			console.warn(`Failed to parse JSON.  Resorting to fallback.  DUMP:`, e, json)
 			return fallback
 		}
 	}
 
-	const numTry = Number(string)
+	const numTry = Number(json)
 	if (!isNaN(numTry)) return numTry
 
-	return string
+	return json
 }
 
-export function jsonStringify(json: Json, spacer = ''): string {
-	return JSON.stringify(json, undefined, spacer)
+export function jsonStringify(data: unknown, spacer = ''): string {
+	return JSON.stringify(data, undefined, spacer)
 }
