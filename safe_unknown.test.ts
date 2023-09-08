@@ -87,4 +87,3 @@ Deno.test('SafeUnknownObject.get recursively gets values', () => {
 	// Check the invalid cases
 	asserts.assertThrows(() => new SafeUnknownObject({ foo: 'hello' }).get('foo', 'bar', 'bin', 'baz'))
 })
-
