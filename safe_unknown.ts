@@ -154,11 +154,11 @@ export class SafeUnknownObject {
 	 * Examples:
 	 *
 	 * ```ts
-	 * new SafeUnknownObject({ foo: null }).get('foo', 'bar', 'bin', 'baz') // Error: Expected data to be an object, but found type null at $.foo
-	 * new SafeUnknownObject({}).get('foo') // Error: Expected to find a value for key "foo" at $
-	 * new SafeUnknownObject({}).get('foo', 'bar', 'bin', 'baz').isNull() // Error: Expected to find a value for key "foo" at $
-	 * new SafeUnknownObject({ foo: "hello" }).get('foo', 'bar', 'bin', 'baz') // Error: Expected data to be an object, but found type string at $.foo
-	 * new SafeUnknownObject({ foo: { bar: { bin: { baz: "Hello" }}}}).asString() // "Hello"
+	 * new SafeUnknownObject({ foo: null }).sureGet('foo', 'bar', 'bin', 'baz') // Error: Expected data to be an object, but found type null at $.foo
+	 * new SafeUnknownObject({}).sureGet('foo') // Error: Expected to find a value for key "foo" at $
+	 * new SafeUnknownObject({}).sureGet('foo', 'bar', 'bin', 'baz').isNull() // Error: Expected to find a value for key "foo" at $
+	 * new SafeUnknownObject({ foo: "hello" }).sureGet('foo', 'bar', 'bin', 'baz') // Error: Expected data to be an object, but found type string at $.foo
+	 * new SafeUnknownObject({ foo: { bar: { bin: { baz: "Hello" }}}}).sureGet('foo', 'bar', 'bin', 'baz').asString() // "Hello"
 	 * ```
 	 */
 	sureGet(...keys: string[]): SafeUnknown {

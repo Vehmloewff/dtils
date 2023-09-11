@@ -57,6 +57,11 @@ Deno.test('SafeUnknown gets the correct type, and throws if it\'s the wrong type
 	}
 })
 
+Deno.test('SafeUnknownObject.get can get a single value', () => {
+	asserts.assertEquals(new SafeUnknownObject({ foo: 12 }).get('foo').asNumber(), 12)
+	asserts.assertEquals(new SafeUnknownObject({ foo: { bar: 12 } }).get('foo').isNumber(), false)
+})
+
 Deno.test('SafeUnknownObject.get recursively gets values', () => {
 	// Check the valid cases
 	asserts.assertEquals(
@@ -86,4 +91,23 @@ Deno.test('SafeUnknownObject.get recursively gets values', () => {
 
 	// Check the invalid cases
 	asserts.assertThrows(() => new SafeUnknownObject({ foo: 'hello' }).get('foo', 'bar', 'bin', 'baz'))
+})
+
+Deno.test('SafeUnknownObject.sureGet properly gets', () => {
+	// Tests invalid cases
+	asserts.assertThrows(() => new SafeUnknownObject({ foo: null }).sureGet('foo', 'bar', 'bin', 'baz'))
+	asserts.assertThrows(() => new SafeUnknownObject({}).sureGet('foo'))
+	asserts.assertThrows(() => new SafeUnknownObject({}).sureGet('foo', 'bar', 'bin', 'baz').isNull())
+	asserts.assertThrows(() => new SafeUnknownObject({ foo: 'hello' }).sureGet('foo', 'bar', 'bin', 'baz'))
+
+	// Test valid cases
+	asserts.assertEquals(
+		new SafeUnknownObject({ foo: { bar: { bin: { baz: 'Hello' } } } }).sureGet('foo', 'bar', 'bin', 'baz').asString(),
+		'Hello',
+	)
+})
+
+Deno.test('SafeUnknownObject.sureGet can get single values', () => {
+	asserts.assertEquals(new SafeUnknownObject({ foo: 12 }).sureGet('foo').asNumber(), 12)
+	asserts.assertEquals(new SafeUnknownObject({ foo: { bar: 12 } }).sureGet('foo').isNumber(), false)
 })
