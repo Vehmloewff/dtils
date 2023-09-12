@@ -21,3 +21,7 @@ Deno.test('cborDecode decodes what cborEncode encoded', () => {
 	asserts.assertEquals(cborDecode(cborEncode(.123)), .123)
 	asserts.assertEquals(cborDecode(cborEncode(null)), null)
 })
+
+Deno.test('cborDecode throws if it can\'t decode', () => {
+	asserts.assertThrows(() => cborDecode(new Uint8Array([12, 2, 55, 90, 123])))
+})
