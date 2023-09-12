@@ -51,3 +51,21 @@ export function errorFromResponse(status: number, text: string): Error {
 
 	return new Error(text)
 }
+
+export function bindErrorRecovery<T, O>(fn: T, recoverWith: O): T | O {
+	if (typeof fn !== 'function') throw new Error('Cannot bind error recovery to a value that is not a function')
+
+	// @ts-ignore returned function will match `fn`
+	return (...args) => {
+		try {
+			const res = fn(...args)
+			if (res instanceof Promise) return res.catch(() => recoverWith)
+
+			return res
+		} catch (_) {
+			return recoverWith
+		}
+	}
+}
+
+// TODO function for `withErrorRecovery`
