@@ -284,6 +284,7 @@ export function validateJson(descriptor: JsonDescriptor, json: Json): ValidatorR
 	}
 }
 
+/** @deprecated Will be removed in next major release. Use `jsonDecode` instead */
 // deno-lint-ignore ban-types
 export function jsonParse(json: string, fallback: {} | [] | null = null): Json {
 	if (!json.length) return json
@@ -310,6 +311,39 @@ export function jsonParse(json: string, fallback: {} | [] | null = null): Json {
 	return json
 }
 
-export function jsonStringify(data: unknown, spacer = ''): string {
+/** @deprecated Will be removed in next major release. Use `jsonEncode` instead */
+export function jsonStringify(data: Json, spacer = ''): string {
+	return JSON.stringify(data, undefined, spacer)
+}
+
+/**
+ * Parse json.
+ *
+ * Wraps the native implementation, the difference being that primitives are parsed at the top level
+ * (i.e. `jsonParse("null")`) is valid */
+export function jsonDecode(json: string): unknown {
+	json = json.trim()
+
+	if (!json.length) throw new Error('Expected a json primitive, object, or array, but found nothing')
+	if (json.startsWith('"') && json.endsWith('"')) return json.slice(1, -1)
+	if (json === 'true') return true
+	if (json === 'false') return false
+	if (json === 'null' || json === 'undefined') return null
+	if ((json.startsWith('{') && json.endsWith('}')) || (json.startsWith('[') && json.endsWith(']'))) {
+		try {
+			return JSON.parse(json)
+		} catch (error) {
+			throw new Error(`Failed to parse json. ${error.message} ... Dump: "${json}"`)
+		}
+	}
+
+	const numTry = Number(json)
+	if (!isNaN(numTry)) return numTry
+
+	throw new Error(`Expected a json primitive, object, or array, but found: "${json}"`)
+}
+
+/** Stringify json with an optional spacer. Wraps the native implementation */
+export function jsonEncode(data: unknown, spacer = ''): string {
 	return JSON.stringify(data, undefined, spacer)
 }
