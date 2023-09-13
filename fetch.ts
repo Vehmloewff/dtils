@@ -54,7 +54,7 @@ export async function encodeResponse(response: Response): Promise<Uint8Array> {
 	const statusText = response.statusText
 	const redirected = response.redirected
 	const url = response.url
-	const headers = response.headers.entries()
+	const headers = [...response.headers.entries()]
 	const body = new Uint8Array(await response.arrayBuffer())
 
 	return cborEncode({ status, statusText, redirected, url, headers, body })
@@ -72,10 +72,8 @@ export function decodeResponse(bytes: Uint8Array): Response {
 
 	const response = new Response(body, { status, statusText, headers })
 
-	// @ts-ignore response.url just has to be set
-	response.url = url
-	// @ts-ignore response.redirected just has to be set
-	response.redirected = redirected
+	Object.defineProperty(response, 'url', { value: url })
+	Object.defineProperty(response, 'redirected', { value: redirected })
 
 	return response
 }

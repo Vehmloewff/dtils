@@ -1,5 +1,8 @@
-import { asserts } from './deps.ts'
-import { SimplifiedFetchParams, simplifyFetchParams } from './fetch.ts'
+import { FsCache } from './cache.ts'
+import { asserts, porter } from './deps.ts'
+import { cachingFetch, decodeResponse, encodeResponse, SimplifiedFetchParams, simplifyFetchParams } from './fetch.ts'
+import { Md5 } from './mod.ts'
+import { concatenate } from './string.ts'
 
 const furtherSimplify = (simplified: SimplifiedFetchParams) => ({
 	method: simplified.method,
@@ -44,4 +47,41 @@ Deno.test(`simplifyFetchParams simplifies even when the details are in the first
 			url: 'https://example.com/',
 		}),
 	)
+})
+
+Deno.test('Response encoding/decoding basically works', async () => {
+	const response = decodeResponse(
+		await encodeResponse(
+			new Response('Hello there!', {
+				status: 202,
+				statusText: 'Custom Ok',
+				headers: { 'x-cool': 'true' },
+			}),
+		),
+	)
+
+	asserts.assertEquals(await response.text(), 'Hello there!')
+	asserts.assertEquals(response.status, 202)
+	asserts.assertEquals(response.statusText, 'Custom Ok')
+	asserts.assertEquals(response.headers.get('x-cool'), 'true')
+})
+
+Deno.test('cachingFetch caches fetches', async () => {
+	const cache = new FsCache(concatenate([Md5.hash(import.meta.url), 'responses']))
+	const trueBody = 'This is the real deal here'
+	const port = await porter.getAvailablePort()
+	const abortController = new AbortController()
+
+	const server = Deno.serve({ port, onListen() {}, signal: abortController.signal }, () => {
+		return new Response(trueBody)
+	})
+
+	const networkBody = await cachingFetch(cache, `http://localhost:${port}`).then((res) => res.text())
+	asserts.assertEquals(networkBody, trueBody)
+
+	abortController.abort()
+	await server.finished
+
+	const cacheBody = await cachingFetch(cache, `http://localhost:${port}/`).then((res) => res.text())
+	asserts.assertEquals(cacheBody, trueBody)
 })
