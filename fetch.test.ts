@@ -72,6 +72,8 @@ Deno.test('cachingFetch caches fetches', async () => {
 	const port = await porter.getAvailablePort()
 	const abortController = new AbortController()
 
+	await cache.clear() // Clear the cache to prevent any existing cache hits for the fetch that is supposed go to the server
+
 	const server = Deno.serve({ port, onListen() {}, signal: abortController.signal }, () => {
 		return new Response(trueBody)
 	})
