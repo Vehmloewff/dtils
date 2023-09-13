@@ -165,3 +165,9 @@ Deno.test('SafeUnknownObject.map maps', () => {
 		Object.entries(OBJECT_TEST).map(([key, value]) => concatenate([key, value])),
 	)
 })
+
+Deno.test('SafeUnknown.asBytes gets bytes', () => {
+	const bytes = new Uint8Array([12, 13, 5, 8, 14])
+
+	asserts.assertEquals(new SafeUnknown(bytes).asBytes(), bytes)
+})
