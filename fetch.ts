@@ -67,10 +67,10 @@ export function decodeResponse(bytes: Uint8Array): Response {
 	const statusText = unknown.get('statusText').asString()
 	const redirected = unknown.get('redirected').asBoolean()
 	const url = unknown.get('url').asString()
-	// TODO: [waiting on .map from safe unknowns] const headers = unknown.get('headers').asArray()
-	// TODO: [waiting on .bytes from safe unknowns] const body = unknown.get('body')
+	const headers = unknown.get('headers').asArray().map((header) => [header.asArray().get(0).asString(), header.asArray().get(1).asString()])
+	const body = unknown.get('body').asBytes()
 
-	const response = new Response(null, { status, statusText, headers: {} })
+	const response = new Response(body, { status, statusText, headers })
 
 	// @ts-ignore response.url just has to be set
 	response.url = url
