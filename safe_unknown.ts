@@ -1,6 +1,6 @@
 import { BadParamsError } from './errors.ts'
 
-export type SafeUnknownType = 'null' | 'string' | 'number' | 'bigint' | 'boolean' | 'array' | 'object' | 'function'
+export type SafeUnknownType = 'null' | 'string' | 'number' | 'bigint' | 'boolean' | 'bytes' | 'array' | 'object' | 'function'
 
 export class SafeUnknown {
 	data: unknown
@@ -17,6 +17,7 @@ export class SafeUnknown {
 		if (typeof this.data === 'number') return 'number'
 		if (typeof this.data === 'bigint') return 'bigint'
 		if (typeof this.data === 'boolean') return 'boolean'
+		if (this.data instanceof Uint8Array) return 'bytes'
 		if (Array.isArray(this.data)) return 'array'
 		if (typeof this.data === 'object') return 'object'
 
@@ -68,8 +69,19 @@ export class SafeUnknown {
 
 	asNull(): null {
 		if (!this.isNull()) {
-			throw new BadParamsError(`Expected data to be null, but found type ${typeof this.data} at ${this.#contextPath}`)
+			throw new BadParamsError(`Expected data to be null, but found type ${this.getType()} at ${this.#contextPath}`)
 		}
+
+		// @ts-ignore check is above
+		return this.data
+	}
+
+	isBytes(): boolean {
+		return this.getType() === 'bytes'
+	}
+
+	asBytes(): Uint8Array {
+		if (!this.isBytes()) throw new Error(`Expected data to be a Uint8Array, but found type ${this.getType()}`)
 
 		// @ts-ignore check is above
 		return this.data
@@ -91,7 +103,7 @@ export class SafeUnknown {
 	}
 
 	asObject(): SafeUnknownObject {
-		if (!this.isObject()) throw new Error(`Expected data to be an object, but found type ${typeof this.data}`)
+		if (!this.isObject()) throw new Error(`Expected data to be an object, but found type ${this.getType()}`)
 
 		// @ts-ignore check is above
 		return new SafeUnknownObject(this.data)
