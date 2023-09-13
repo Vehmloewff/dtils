@@ -1,1 +1,1 @@
-export * as dtils from 'https://deno.land/x/dtils@2.0.0/mod.unstable.ts'
+export * as dtils from 'https://deno.land/x/dtils@2.2.1/mod.unstable.ts'
