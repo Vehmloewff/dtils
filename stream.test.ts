@@ -1,5 +1,5 @@
 import { asserts } from './deps.ts'
-import { collectStream } from './stream.ts'
+import { collectStream, readStreamToFn } from './stream.ts'
 
 const items = ['This', 'is', 'the', 'day', 'that the', 'Lord', 'has', 'made']
 
