@@ -69,7 +69,7 @@ export class SafeUnknown {
 
 	asNull(): null {
 		if (!this.isNull()) {
-			throw new BadParamsError(`Expected data to be null, but found type ${typeof this.data} at ${this.#contextPath}`)
+			throw new BadParamsError(`Expected data to be null, but found type ${this.getType()} at ${this.#contextPath}`)
 		}
 
 		// @ts-ignore check is above
@@ -103,7 +103,7 @@ export class SafeUnknown {
 	}
 
 	asObject(): SafeUnknownObject {
-		if (!this.isObject()) throw new Error(`Expected data to be an object, but found type ${typeof this.data}`)
+		if (!this.isObject()) throw new Error(`Expected data to be an object, but found type ${this.getType()}`)
 
 		// @ts-ignore check is above
 		return new SafeUnknownObject(this.data)
