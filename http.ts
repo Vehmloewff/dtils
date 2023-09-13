@@ -32,6 +32,7 @@ export class ExpectantQuery {
 	}
 }
 
+/** @deprecated Use `SafeUnknown` instead */
 export class JsonBody {
 	body: unknown
 
