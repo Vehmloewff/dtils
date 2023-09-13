@@ -107,6 +107,38 @@ export class SafeUnknownObject {
 		this.#contextPath = contextPath
 	}
 
+	/** Gets an array of all the keys in the object */
+	keys(): string[] {
+		const indexes: string[] = []
+
+		for (const index in this.data) indexes.push(index)
+
+		return indexes
+	}
+
+	/** Gets an array of all the values in the array as safe unknowns */
+	values(): SafeUnknown[] {
+		const values: SafeUnknown[] = []
+
+		for (const key in this.data) values.push(new SafeUnknown(this.data[key]))
+
+		return values
+	}
+
+	/** Calls `fn` for every item in the array */
+	forEach(fn: (value: SafeUnknown, key: string) => unknown): void {
+		for (const key in this.data) fn(new SafeUnknown(this.data[key]), key)
+	}
+
+	/** Calls `fn` on each item in the array, returning a new array made up of the results of `fn` */
+	map<T>(fn: (value: SafeUnknown, key: string) => T): Record<string, T> {
+		const newRecord: Record<string, T> = {}
+
+		for (const key in this.data) newRecord[key] = fn(new SafeUnknown(this.data[key]), key)
+
+		return newRecord
+	}
+
 	/** Gets the value of a single key in the object. If the key doesn't exist, a `SafeUnknown` with `null` will be returned */
 	getSingle(key: string): SafeUnknown {
 		const value = this.data[key] ?? null
@@ -175,11 +207,37 @@ export class SafeUnknownObject {
 
 export class SafeUnknownArray {
 	data: unknown[]
+	length: number
 	#contextPath: string
 
 	constructor(data: unknown[], contextPath = '$') {
 		this.data = data
+		this.length = data.length
+
 		this.#contextPath = contextPath
+	}
+
+	/** Gets an array of all the values in the array as safe unknowns */
+	values(): SafeUnknown[] {
+		const values: SafeUnknown[] = []
+
+		for (const value of this.data) values.push(new SafeUnknown(value))
+
+		return values
+	}
+
+	/** Calls `fn` for every item in the array */
+	forEach(fn: (value: SafeUnknown, index: number) => unknown): void {
+		for (const index in this.data) fn(new SafeUnknown(this.data[index]), parseInt(index))
+	}
+
+	/** Calls `fn` on each item in the array, returning a new array made up of the results of `fn` */
+	map<T>(fn: (value: SafeUnknown, index: number) => T): T[] {
+		const newArray: T[] = []
+
+		for (const index in this.data) newArray.push(fn(new SafeUnknown(this.data[index]), parseInt(index)))
+
+		return newArray
 	}
 
 	/** Gets the value of a single index in the array. If the index doesn't exist, a `SafeUnknown` with `null` will be returned */
