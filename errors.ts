@@ -51,3 +51,62 @@ export function errorFromResponse(status: number, text: string): Error {
 
 	return new Error(text)
 }
+
+/**
+ * Bind error recovery to `fn`, which is expected to be a function. If when the function is later called and errors,
+ * `recoverWith` will be returned instead.
+ *
+ * Examples:
+ *
+ * ```ts
+ * function foo() {
+ * 	throw new Error('I throw')
+ * }
+ *
+ * const safeFoo = bindErrorRecovery(foo, null)
+ *
+ * foo() // Error: I throw
+ * safeFoo() // null
+ * ```
+ */
+export function bindErrorRecovery<
+	Args extends unknown[],
+	Return extends unknown,
+	O,
+>(fn: (...args: Args) => Return, recoverWith: O): (...args: Args) => Return | O {
+	if (typeof fn !== 'function') throw new Error('Cannot bind error recovery to a value that is not a function')
+
+	// @ts-ignore returned function will match `fn`
+	return (...args) => {
+		try {
+			const res = fn(...args)
+			if (res instanceof Promise) return res.catch(() => recoverWith)
+
+			return res
+		} catch (_) {
+			return recoverWith
+		}
+	}
+}
+
+/**
+ * Call `fn`, returning its result, but return `recoverWith` if it errors. If `fn` returns a promise,
+ * use `withAsyncErrorRecovery` */
+export function withErrorRecovery<T, O>(fn: () => T, recoverWith: O): T | O {
+	try {
+		return fn()
+	} catch (_) {
+		return recoverWith
+	}
+}
+
+/**
+ * Call `fn`, returning its result, but return `recoverWith` if it errors. If `fn` doesn't return a promise,
+ * use `withErrorRecovery` instead */
+export async function withAsyncErrorRecovery<T, O>(fn: () => Promise<T>, recoverWith: O): Promise<T | O> {
+	try {
+		return await fn()
+	} catch (_) {
+		return recoverWith
+	}
+}
