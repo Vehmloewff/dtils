@@ -1,3 +1,5 @@
+import { asserts } from './deps.ts'
+import { bindErrorRecovery, withAsyncErrorRecovery, withErrorRecovery } from './errors.ts'
 
 Deno.test('bindErrorRecovery works', () => {
 	function foo(error: boolean) {
@@ -26,4 +28,35 @@ Deno.test('bindErrorRecovery works on promises', async () => {
 	asserts.assertRejects(async () => await foo(true))
 	asserts.assertEquals(await safeFoo(true), 20)
 	asserts.assertEquals(await safeFoo(false), 12)
+})
+
+Deno.test('withErrorRecovery works', () => {
+	asserts.assertEquals(withErrorRecovery(() => 12, 13), 12)
+
+	asserts.assertEquals(
+		withErrorRecovery(() => {
+			throw new Error('error')
+		}, 13),
+		13,
+	)
+})
+
+Deno.test('withAsyncErrorRecovery works', async () => {
+	asserts.assertEquals(
+		await withAsyncErrorRecovery(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 5))
+
+			return 12
+		}, 13),
+		12,
+	)
+
+	asserts.assertEquals(
+		await withAsyncErrorRecovery(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 5))
+
+			throw new Error('error')
+		}, 13),
+		13,
+	)
 })
