@@ -15,11 +15,16 @@ const ensureDirExists = async (file: string) => {
 	if (!(await exists(dir))) await Deno.mkdir(dir, { recursive: true })
 }
 
-export async function writeBinary(file: string, binary: Uint8Array): Promise<void> {
+/** @deprecated Will be removed in next major release. Use `writeBytes` instead */
+export const writeBinary = writeBytes
+
+/** Write `bytes` to `file`. Creates the directory if it doesn't exist */
+export async function writeBytes(file: string, bytes: Uint8Array): Promise<void> {
 	await ensureDirExists(file)
-	await Deno.writeFile(file, binary)
+	await Deno.writeFile(file, bytes)
 }
 
+/** Write `text` to `file`. Creates the directory if it doesn't exist */
 export async function writeText(file: string, text: string): Promise<void> {
 	await ensureDirExists(file)
 	await Deno.writeTextFile(file, text)
@@ -29,7 +34,8 @@ export interface WriteJsonOptions {
 	separator?: string
 }
 
-export async function writeJson(file: string, json: Json, options: WriteJsonOptions = {}): Promise<void> {
+/** Write `json` to `file`. Creates the directory if it doesn't exist */
+export async function writeJson(file: string, json: unknown, options: WriteJsonOptions = {}): Promise<void> {
 	await ensureDirExists(file)
 	await Deno.writeTextFile(file, JSON.stringify(json, null, options.separator))
 }
