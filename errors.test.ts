@@ -1,5 +1,5 @@
 import { asserts } from './deps.ts'
-import { bindErrorRecovery, withAsyncErrorRecovery, withErrorRecovery } from './errors.ts'
+import { bindErrorRecovery, prependErrorMessageWith, retryFailures, withAsyncErrorRecovery, withErrorRecovery } from './errors.ts'
 
 Deno.test('bindErrorRecovery works', () => {
 	function foo(error: boolean) {
@@ -58,5 +58,53 @@ Deno.test('withAsyncErrorRecovery works', async () => {
 			throw new Error('error')
 		}, 13),
 		13,
+	)
+})
+
+Deno.test('retryFailures retries correct number of times', async () => {
+	let didRun = 0
+
+	await retryFailures(
+		() => {
+			didRun++
+
+			if (didRun < 10) throw new Error('Test error')
+		},
+		5,
+		10,
+	)
+
+	asserts.assertEquals(didRun, 10)
+})
+
+Deno.test('retryFailures stops retrying on success', async () => {
+	let didRun = 0
+
+	const result = await retryFailures(
+		() => {
+			didRun++
+
+			if (didRun < 5) throw new Error('Test error')
+
+			return 45
+		},
+		5,
+		10,
+	)
+
+	asserts.assertEquals(result, 45)
+	asserts.assertEquals(didRun, 5)
+})
+
+Deno.test('prependErrorMessageWith prepends error messages with', () => {
+	asserts.assertThrows(
+		() => {
+			const error = new Error('Test error')
+			prependErrorMessageWith(error, 'prepend stuff')
+
+			throw error
+		},
+		Error,
+		'prepend stuff Test error',
 	)
 })

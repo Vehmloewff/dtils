@@ -1,3 +1,5 @@
+import { asyncUtils } from './deps.ts'
+
 export class UserError extends Error {
 	code = 'USER_FAULT'
 }
@@ -109,4 +111,31 @@ export async function withAsyncErrorRecovery<T, O>(fn: () => Promise<T>, recover
 	} catch (_) {
 		return recoverWith
 	}
+}
+
+/** Call `fn`. If it throws, delay for `delayTime`, then call it again, up to `retryCount` times. */
+export async function retryFailures<T>(fn: () => Promise<T> | T, delayTime = 3000, retryCount = 3): Promise<T> {
+	let triedTime = 0
+	let lastError: unknown
+
+	while (triedTime <= retryCount) {
+		triedTime++
+
+		try {
+			return await fn()
+		} catch (error) {
+			lastError = error
+			await asyncUtils.delay(delayTime)
+		}
+	}
+
+	prependErrorMessageWith(lastError, `After ${retryCount} retries, the error remains:`)
+
+	throw lastError
+}
+
+/** Modifies the `message` field of `error` to be prepended with `prepend` */
+export function prependErrorMessageWith(error: unknown, prepend: string): void {
+	// @ts-ignore we want to append some info to the error message if it exists
+	if (error.message) error.message = `${prepend} ${error.message}`
 }
