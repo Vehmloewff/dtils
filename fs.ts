@@ -104,28 +104,12 @@ export async function readJsonStrict(file: string): Promise<Json> {
 
 /** Recursively read all files in `rootDir`. Resulting paths will include `rootDir` */
 export async function recursiveReadDir(rootDir: string): Promise<string[]> {
-	if (!await exists(rootDir)) return []
+	const files = await recursiveReadInsideDir(rootDir)
 
-	// The following was ported from https://deno.land/x/recursive_readdir@v2.0.0/mod.ts?source
-	const files: string[] = []
-
-	const getFiles = async (path: string) => {
-		for await (const dirEntry of Deno.readDir(path)) {
-			if (dirEntry.isDirectory) {
-				await getFiles(pathUtils.join(path, dirEntry.name))
-				continue
-			}
-
-			if (dirEntry.isFile) files.push(pathUtils.join(path, dirEntry.name))
-		}
-	}
-
-	await getFiles(rootDir)
-
-	return files
+	return files.map(({ path }) => path)
 }
 
-/** Get all entries in `dir`. Resulting paths will not include `dir`  */
+/** Get all entries in `dir`. Resulting paths will not include `dir`. Symlinks are ignored. */
 export async function readDir(dir: string): Promise<string[]> {
 	if (!await exists(dir)) return []
 
@@ -134,4 +118,100 @@ export async function readDir(dir: string): Promise<string[]> {
 	for await (const dirEntry of Deno.readDir(dir)) names.push(dirEntry.name)
 
 	return names
+}
+
+export interface PathPair {
+	/** The path to a file from inside the directory */
+	innerPath: string
+	/** The path to the file */
+	path: string
+}
+
+/** Recursively read all files in `rootDir`. Symlinks are ignored. */
+export async function recursiveReadInsideDir(rootDir: string): Promise<PathPair[]> {
+	if (!await exists(rootDir)) return []
+
+	const results: PathPair[] = []
+
+	const getFiles = async (path: string, innerPath: string) => {
+		for await (const dirEntry of Deno.readDir(path)) {
+			const childPath = pathUtils.join(path, dirEntry.name)
+			const childInnerPath = pathUtils.join(innerPath, dirEntry.name)
+
+			if (dirEntry.isDirectory) {
+				await getFiles(childPath, childInnerPath)
+				continue
+			}
+
+			if (dirEntry.isFile) results.push({ path: childPath, innerPath: childInnerPath })
+		}
+	}
+
+	await getFiles(rootDir, '.')
+
+	return results
+}
+
+export interface CopyDirOptions {
+	/**
+	 * If specified, `pathFilter` will be called for every `path` in `directory`.
+	 *
+	 * `path` will be a subpath of `directory`, and not include it. */
+	pathFilter?(path: string): boolean
+}
+
+/** Copy the contents of `srcDirectory` into `destDirectory`, optionally filtering with `options.pathFilter`. Symlinks are ignored. */
+export async function copyDir(srcDirectory: string, destDirectory: string, options: CopyDirOptions = {}): Promise<void> {
+	const rawCurrentPaths = await recursiveReadInsideDir(srcDirectory)
+
+	for (const { innerPath, path } of rawCurrentPaths) {
+		if (options.pathFilter && !options.pathFilter(innerPath)) continue
+
+		const newPath = pathUtils.join(destDirectory, innerPath)
+		const currentFile = await Deno.open(path, { read: true })
+
+		const newPathDir = pathUtils.dirname(newPath)
+		if (!await exists(newPathDir)) await Deno.mkdir(newPathDir, { recursive: true })
+
+		const newFile = await Deno.open(newPath, { create: true, write: true, truncate: true })
+		await currentFile.readable.pipeTo(newFile.writable)
+	}
+}
+
+/**
+ *  Read the contents of `directory` into the returned map. Symlinks are ignored.
+ *
+ * **Example**
+ *
+ * Assume an FS structure like so...
+ *
+ * ```txt
+ * /root
+ *   |- foo
+ *     |- bin
+ *   |- bar
+ *     |- baz
+ * ```
+ *
+ * ...when running with the text reader...
+ *
+ * ```ts
+ * console.log(await recursiveReadFiles('/root', readText))
+ * ```
+ *
+ * ... the output should match this:
+ *
+ * ```txt
+ * Map(2) {
+ *   "foo/bin" => "...",
+ *   "bar/baz" => "..."
+ * }
+ * ``` */
+export async function recursiveReadFiles<T>(directory: string, reader: (path: string) => Promise<T>): Promise<Map<string, T>> {
+	const files = await recursiveReadInsideDir(directory)
+	const map = new Map<string, T>()
+
+	for (const { innerPath, path } of files) map.set(innerPath, await reader(path))
+
+	return map
 }
