@@ -215,3 +215,83 @@ export async function recursiveReadFiles<T>(directory: string, reader: (path: st
 
 	return map
 }
+
+export interface WatcherParams {
+	/** Called when a file is updated */
+	onUpdate(file: string): unknown
+	/** A signal by which the watcher can be aborted */
+	signal?: AbortSignal
+	/** The interval (in milliseconds) at which to poll files. Defaults to 1000 */
+	interval?: number
+}
+
+export interface Watcher {
+	/** Add files to the watcher. Watcher will watch these files for changes */
+	addFiles(files: string[]): void
+}
+
+/**
+ * Create a watcher that monitors a list of files for updates
+ *
+ * Example:
+ *
+ * ```ts
+ * const watcher = createWatcher({
+ * 	onUpdate: (file) => console.log('File changed:', file)
+ * })
+ *
+ * watcher.addFiles(await recursiveReadDir('.'))
+ * ``` */
+export function createWatcher(params: WatcherParams): Watcher {
+	const interval = params.interval ?? 1000
+	const files = new Set<string>()
+
+	async function pollFiles() {
+		const now = Date.now()
+		const lastCheckedTime = now - interval + interval * 0.1
+
+		const filesToRemove: string[] = []
+
+		for (const file of files) {
+			const mtime = await getMtime(file)
+
+			if (mtime === null) {
+				filesToRemove.push(file)
+				continue
+			}
+
+			if (mtime > lastCheckedTime) {
+				params.onUpdate(file)
+				break
+			}
+		}
+
+		for (const file of filesToRemove) {
+			files.delete(file)
+		}
+	}
+
+	function addFiles(newFiles: string[]) {
+		for (const file of newFiles) files.add(file)
+	}
+
+	const timer = setInterval(() => pollFiles(), interval)
+
+	if (params.signal) params.signal.addEventListener('abort', () => clearInterval(timer))
+
+	return { addFiles }
+}
+
+/** Retrieves the modified time of `file`. If unsupported on this platform, or if the file doesn't exist, null is returned */
+async function getMtime(file: string) {
+	let stat: Deno.FileInfo | null
+	try {
+		stat = await Deno.stat(file)
+	} catch (_) {
+		return null
+	}
+
+	if (!stat.mtime) return null
+
+	return stat.mtime.getTime()
+}
