@@ -1,7 +1,7 @@
 import { asserts } from './deps.ts'
 import { execCaptureIncremental } from './sh.ts'
 
-Deno.test('execCaptureIncremental doesn\'t fail or log anything extraneous', async () => {
+Deno.test("execCaptureIncremental doesn't fail or log anything extraneous", async () => {
 	await execCaptureIncremental(['deno', 'run', 'sh.ts'], {
 		onErrorLine() {
 			throw new Error('There should never be any error lines')

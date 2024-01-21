@@ -22,7 +22,7 @@ Deno.test('jsonDecode decodes what jsonEncode encodes', () => {
 	asserts.assertEquals(jsonDecode(jsonEncode(null)), null)
 })
 
-Deno.test('jsonDecode throws if it can\'t decode', () => {
+Deno.test("jsonDecode throws if it can't decode", () => {
 	asserts.assertThrows(() => jsonDecode('duh'))
 	asserts.assertThrows(() => jsonDecode(''))
 	asserts.assertThrows(() => jsonDecode('{ new: }'))

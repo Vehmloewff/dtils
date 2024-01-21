@@ -47,9 +47,9 @@ const getAesAlgorithmData = (counter: Uint8Array): AesCtrParams => ({
 })
 
 const importAesKey = (keyData: ParsedSymmetricKey, usages: KeyUsage[]) => {
-	if (keyData.counterBytes.length !== 16) throw new Error('`key` is an invalid aes symmetric key.  It doesn\'t have a 16 byte counter')
+	if (keyData.counterBytes.length !== 16) throw new Error("`key` is an invalid aes symmetric key.  It doesn't have a 16 byte counter")
 	if (keyData.keyBytes.length !== 16) {
-		throw new Error('`key` is an invalid aes symmetric key. It doesn\'t have a 16 byte section for the true key')
+		throw new Error("`key` is an invalid aes symmetric key. It doesn't have a 16 byte section for the true key")
 	}
 
 	return crypto.subtle.importKey('raw', keyData.keyBytes, getAesAlgorithmData(keyData.counterBytes), false, usages)

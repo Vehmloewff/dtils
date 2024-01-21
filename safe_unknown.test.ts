@@ -2,7 +2,7 @@ import { asserts } from './deps.ts'
 import { SafeUnknown, SafeUnknownArray, SafeUnknownObject } from './safe_unknown.ts'
 import { concatenate } from './string.ts'
 
-Deno.test('SafeUnknown gets the correct type, and throws if it\'s the wrong type', () => {
+Deno.test("SafeUnknown gets the correct type, and throws if it's the wrong type", () => {
 	interface TypeTest {
 		value: unknown
 		fn(safe: SafeUnknown): void

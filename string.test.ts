@@ -29,7 +29,7 @@ Deno.test('concat and sliceConcatenated prevent delimiter attacks', () => {
 	asserts.assertEquals(sliceConcatenated(attackString), attackSections)
 })
 
-Deno.test('escaping and doing other funny stuff doesn\'t mess things up', () => {
+Deno.test("escaping and doing other funny stuff doesn't mess things up", () => {
 	const sections = ['http:://', 'meeker 😂', 'bee\\/keeper']
 
 	asserts.assertEquals(sliceConcatenated(concatenate(sections)), sections)
