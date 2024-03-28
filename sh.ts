@@ -195,16 +195,34 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 }
 
 export async function getExecFromPath(name: string): Promise<string> {
+	const res = await getExecutablesFromPath(name)
+	const path = res.get(name)?.[0]
+	if (!path) throw new Error(`Could not find ${name} in $PATH`)
+
+	return path
+}
+
+export async function getExecutablesFromPath(matcher: string | ((name: string) => boolean)): Promise<Map<string, string[]>> {
 	const path = Deno.env.get('PATH')
 	if (!path) throw new Error('Could not detect the $PATH env var')
 
+	const matchFn = typeof matcher === 'string' ? (name: string) => name === matcher : matcher
+
 	const directories = path.split(':')
+	const matches = new Map<string, string[]>()
 
 	for (const directory of directories) {
 		for await (const entry of Deno.readDir(directory)) {
-			if (entry.name === name) return pathUtils.join(directory, name)
+			if (entry.isDirectory) continue
+			if (matchFn(entry.name)) {
+				const exec = pathUtils.join(directory, name)
+				const existingMatches = matches.get(name)
+
+				if (existingMatches) existingMatches.push(exec)
+				else matches.set(name, [exec])
+			}
 		}
 	}
 
-	throw new Error(`Could not find ${name} in $PATH`)
+	return matches
 }
