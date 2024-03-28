@@ -1,5 +1,5 @@
 import { asserts } from './deps.ts'
-import { execCaptureIncremental } from './sh.ts'
+import { execCaptureIncremental, sh } from './sh.ts'
 
 Deno.test("execCaptureIncremental doesn't fail or log anything extraneous", async () => {
 	await execCaptureIncremental(['deno', 'run', 'sh.ts'], {
@@ -20,4 +20,13 @@ Deno.test('execCaptureIncremental throws and error if child fails', async () => 
 	} catch (_) {
 		// it threw!
 	}
+})
+
+// this won't pass until deno fixes it's issue with inherit not actually inheriting
+Deno.test({
+	name: 'sh stdout is inherited',
+	ignore: true,
+	async fn() {
+		await sh('echo "Deno.exit(Deno.stdout.isTerminal() && Deno.stderr.isTerminal() ? 0 : 1)" | deno')
+	},
 })

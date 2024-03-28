@@ -63,7 +63,7 @@ export interface ExecCaptureIncrementalOptions extends ExecOptions {
 
 /** Executes `command` in default shell, printing the command's output. Throws if command exits with a non-zero status */
 export async function sh(command: string, options: ExecOptions = {}): Promise<void> {
-	return exec(await getCommandArgs(command), { inheritStdio: true, ...options })
+	return exec(await getCommandArgs(command), options)
 }
 
 /** Executes `command` in default shell. Throws if command exits with a non-zero status. */
@@ -142,10 +142,15 @@ export async function execCapture(segments: string[], options: ExecOptions = {})
 export async function execCaptureIncremental(segments: string[], options: ExecCaptureIncrementalOptions = {}): Promise<void> {
 	if (!segments.length) throw new Error('segments must not be empty')
 
-	const env = { ...options.env }
+	const userSuppliedEnv = options.env || {}
+	const env: Record<string, string> = {}
 
-	if (options.suppressColor && !env.NO_COLOR) env.NO_COLOR = '1'
-	if (!options.suppressPath && !env.PATH) env.PATH = sureGetEnvVar('PATH')
+	if (options.suppressColor) env.NO_COLOR = '1'
+	else env.TERM = 'xterm-256color'
+
+	if (!options.suppressPath) env.PATH = sureGetEnvVar('PATH')
+
+	for (const key in userSuppliedEnv) env[key] = userSuppliedEnv[key]
 
 	const process = new Deno.Command(segments[0], {
 		args: segments.slice(1),
