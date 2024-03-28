@@ -37,6 +37,9 @@ export interface ExecOptions {
 
 	/** A signal to abort this process when necessary */
 	signal?: AbortSignal
+
+	/** If specified, content will be written to the process stdin before it is closed. If unspecified, stdin will be inherited */
+	input?: string
 }
 
 export interface ExecCaptureResult {
@@ -142,7 +145,7 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 		args: segments.slice(1),
 		stderr: 'piped',
 		stdout: 'piped',
-		stdin: 'piped',
+		stdin: options.input ? 'piped' : 'inherit',
 		cwd: options.cwd,
 		env,
 		clearEnv: true,
@@ -157,6 +160,11 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 	const logLinesStream = process.stdout.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
 	const errorLinesStream = process.stderr.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
 
+	if (options.input) {
+		await process.stdin.getWriter().write(new TextEncoder().encode(options.input))
+		await process.stdin.close()
+	}
+
 	const outputPromise = readStreamToFn(logLinesStream, async (line) => {
 		if (options.onLogLine) await options.onLogLine(line, eventParams)
 	})
@@ -168,7 +176,6 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 	})
 
 	const [status] = await Promise.all([process.status, outputPromise, outputLogPromise])
-	process.stdin.close()
 
 	if (status.success) return
 
