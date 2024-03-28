@@ -34,6 +34,9 @@ export interface ExecOptions {
 
 	/** Any env variables that should be specified for the child process */
 	env?: Record<string, string>
+
+	/** A signal to abort this process when necessary */
+	signal?: AbortSignal
 }
 
 export interface ExecCaptureResult {
@@ -143,6 +146,7 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 		cwd: options.cwd,
 		env,
 		clearEnv: true,
+		signal: options.signal,
 	}).spawn()
 
 	const errorLines: string[] = []
