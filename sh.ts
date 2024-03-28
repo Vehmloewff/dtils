@@ -163,23 +163,31 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 
 	if (options.onSetup) await options.onSetup(eventParams)
 
-	const logLinesStream = process.stdout.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
-	const errorLinesStream = process.stderr.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
+	const logLinesStream = options.inheritStdio
+		? null
+		: process.stdout.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
+	const errorLinesStream = options.inheritStdio
+		? null
+		: process.stderr.pipeThrough(new TextDecoderStream()).pipeThrough(new streamUtils.TextLineStream())
 
 	if (options.input) {
 		await process.stdin.getWriter().write(new TextEncoder().encode(options.input))
 		await process.stdin.close()
 	}
 
-	const outputPromise = readStreamToFn(logLinesStream, async (line) => {
-		if (options.onLogLine) await options.onLogLine(line, eventParams)
-	})
+	const outputPromise = logLinesStream
+		? readStreamToFn(logLinesStream, async (line) => {
+			if (options.onLogLine) await options.onLogLine(line, eventParams)
+		})
+		: Promise.resolve()
 
-	const outputLogPromise = readStreamToFn(errorLinesStream, async (line) => {
-		errorLines.push(line)
+	const outputLogPromise = errorLinesStream
+		? readStreamToFn(errorLinesStream, async (line) => {
+			errorLines.push(line)
 
-		if (options.onErrorLine) await options.onErrorLine(line, eventParams)
-	})
+			if (options.onErrorLine) await options.onErrorLine(line, eventParams)
+		})
+		: Promise.resolve()
 
 	const [status] = await Promise.all([process.status, outputPromise, outputLogPromise])
 
