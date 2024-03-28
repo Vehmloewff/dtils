@@ -38,6 +38,11 @@ export interface ExecOptions {
 	/** A signal to abort this process when necessary */
 	signal?: AbortSignal
 
+	/**
+	 * If `true` stout and stdin will be inherited from the component. Defaults to `true` for `sh` and `exec`, but false for `shCapture`,
+	 * `shCaptureIncremental`, `shIgnore`, `execCapture`, `execIgnore`, and `execCaptureIncremental` */
+	inheritStdio?: boolean
+
 	/** If specified, content will be written to the process stdin before it is closed. If unspecified, stdin will be inherited */
 	input?: string
 }
@@ -58,7 +63,7 @@ export interface ExecCaptureIncrementalOptions extends ExecOptions {
 
 /** Executes `command` in default shell, printing the command's output. Throws if command exits with a non-zero status */
 export async function sh(command: string, options: ExecOptions = {}): Promise<void> {
-	return exec(await getCommandArgs(command), options)
+	return exec(await getCommandArgs(command), { inheritStdio: true, ...options })
 }
 
 /** Executes `command` in default shell. Throws if command exits with a non-zero status. */
@@ -87,6 +92,7 @@ export async function shCaptureIncremental(command: string, options: ExecCapture
  * @param segments The segments to execute. The first should be the file, the rest will be passed as arguments */
 export async function exec(segments: string[], options: ExecOptions = {}): Promise<void> {
 	await execCaptureIncremental(segments, {
+		inheritStdio: true,
 		...options,
 		onErrorLine(line) {
 			console.error(line)
@@ -143,8 +149,8 @@ export async function execCaptureIncremental(segments: string[], options: ExecCa
 
 	const process = new Deno.Command(segments[0], {
 		args: segments.slice(1),
-		stderr: 'piped',
-		stdout: 'piped',
+		stderr: options.inheritStdio ? 'inherit' : 'piped',
+		stdout: options.inheritStdio ? 'inherit' : 'piped',
 		stdin: options.input ? 'piped' : 'inherit',
 		cwd: options.cwd,
 		env,
